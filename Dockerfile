@@ -5,34 +5,8 @@ ARG FRANKENPHP_VERSION=latest
 
 ARG COMPOSER_VERSION=latest
 
-ARG GITHUB_OAUTH_TOKEN
 
-###########################################
-# Build frontend assets with NPM
-###########################################
 
-ARG NODE_VERSION=20-alpine
-
-FROM node:${NODE_VERSION} AS build
-
-ENV ROOT=/var/www/html
-
-WORKDIR ${ROOT}
-
-RUN npm config set update-notifier false && npm set progress=false
-
-COPY --link package*.json ./
-
-RUN if [ -f $ROOT/package-lock.json ]; \
-    then \
-    npm ci --loglevel=error --no-audit; \
-    else \
-    npm install --loglevel=error --no-audit; \
-    fi
-
-COPY --link . .
-
-RUN npm run build
 
 ###########################################
 
@@ -50,7 +24,6 @@ ARG WWWUSER=1000
 ARG WWWGROUP=1000
 ARG TZ=UTC
 ARG APP_DIR=/var/www/html
-ARG GITHUB_OAUTH_TOKEN
 
 ENV TERM=xterm-color \
     WITH_HORIZON=false \
@@ -141,6 +114,33 @@ RUN composer install \
     --no-autoloader \
     --no-ansi \
     --no-scripts
+
+###########################################
+# Build frontend assets with NPM
+###########################################
+
+ARG NODE_VERSION=20-alpine
+
+FROM node:${NODE_VERSION} AS build
+
+ENV ROOT=/var/www/html
+
+WORKDIR ${ROOT}
+
+RUN npm config set update-notifier false && npm set progress=false
+
+COPY --link package*.json ./
+
+RUN if [ -f $ROOT/package-lock.json ]; \
+    then \
+    npm ci --loglevel=error --no-audit; \
+    else \
+    npm install --loglevel=error --no-audit; \
+    fi
+
+COPY --link . .
+
+RUN npm run build
 
 COPY --link --chown=${USER}:${USER} . .
 COPY --link --chown=${USER}:${USER} --from=build ${ROOT}/public public
