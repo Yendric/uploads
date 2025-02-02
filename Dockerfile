@@ -135,8 +135,6 @@ USER ${USER}
 COPY --link --chown=${USER}:${USER} --from=vendor /usr/bin/composer /usr/bin/composer
 COPY --link --chown=${USER}:${USER} composer.json composer.lock ./
 
-RUN composer config github-oauth.github.com ${GITHUB_OAUTH_TOKEN}
-
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -164,8 +162,6 @@ COPY --link --chown=${USER}:${USER} deployment/php.ini ${PHP_INI_DIR}/conf.d/99-
 
 # FrankenPHP embedded PHP configuration
 COPY --link --chown=${USER}:${USER} deployment/php.ini /lib/php.ini
-
-RUN composer config github-oauth.github.com ${GITHUB_OAUTH_TOKEN}
 
 RUN composer install \
     --classmap-authoritative \
