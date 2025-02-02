@@ -1,0 +1,36 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+
+    paths:
+        - app/
+
+    # Level 10 is the highest level
+    level: max
+
+    checkBenevolentUnionTypes: true
+    checkImplicitMixed: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    checkMissingOverrideMethodAttribute: true
+ 
+    ignoreErrors:
+        #- '#.*but returns array.*#'
+        #^ Laravel Collection #toArray doesn't support generics
+        #- '#Variable method call on.*Illuminate\\Database\\Eloquent\\Model.#'
+        #- '#Variable method call on.*Weby\\Cms\\Models\\ResourceOptions.#'
+        #- '#Variable property access on.*Weby\\Cms\\Models\\ResourceOptions.#'
+        #- '#.*Exception.*has no type specified.#'
+        #- '#.*no value type specified in iterable type array.#'
+        #- '#.*of function strval expects.*#'
+        - '#Dynamic call to static method .*#'
+        #- '#.*is used zero times and is not analysed.#'
+#
+#    excludePaths:
+#        - ./*/*/FileToBeExcluded.php
+#
+#    checkMissingIterableValueType: false
