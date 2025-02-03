@@ -178,7 +178,9 @@ export default function AutoHighlight({
 
     return (
         <pre>
-            <code ref={codeRef}>{code}</code>
+            <code ref={codeRef} className="break-all text-wrap">
+                {code}
+            </code>
         </pre>
     );
 }

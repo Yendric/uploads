@@ -1,18 +1,11 @@
-# Accepted values: 8.3 - 8.2
-ARG PHP_VERSION=8.3
-
-ARG FRANKENPHP_VERSION=latest
-
-ARG COMPOSER_VERSION=latest
-
-
-
-
-###########################################
+ARG PHP_VERSION=8.4
+ARG COMPOSER_VERSION=2.8
+ARG BUN_VERSION="latest"
+ARG APP_ENV
 
 FROM composer:${COMPOSER_VERSION} AS vendor
 
-FROM dunglas/frankenphp:${FRANKENPHP_VERSION}-php${PHP_VERSION}-alpine
+FROM php:${PHP_VERSION}-cli-alpine AS base
 
 LABEL maintainer="SMortexa <seyed.me720@gmail.com>"
 LABEL org.opencontainers.image.title="Laravel Octane Dockerfile"
@@ -23,40 +16,42 @@ LABEL org.opencontainers.image.licenses=MIT
 ARG WWWUSER=1000
 ARG WWWGROUP=1000
 ARG TZ=UTC
-ARG APP_DIR=/var/www/html
+ARG APP_ENV
 
 ENV TERM=xterm-color \
     WITH_HORIZON=false \
     WITH_SCHEDULER=false \
-    OCTANE_SERVER=frankenphp \
+    OCTANE_SERVER=swoole \
+    TZ=${TZ} \
     USER=octane \
-    ROOT=${APP_DIR} \
+    APP_ENV=${APP_ENV} \
+    ROOT=/var/www/html \
     COMPOSER_FUND=0 \
-    COMPOSER_MAX_PARALLEL_HTTP=24 \
-    XDG_CONFIG_HOME=${APP_DIR}/.config \
-    XDG_DATA_HOME=${APP_DIR}/.data
+    COMPOSER_MAX_PARALLEL_HTTP=24
 
 WORKDIR ${ROOT}
 
 SHELL ["/bin/sh", "-eou", "pipefail", "-c"]
 
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone
+  && echo ${TZ} > /etc/timezone
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN apk update; \
     apk upgrade; \
     apk add --no-cache \
     curl \
     wget \
-    nano \
+    vim \
     git \
     ncdu \
     procps \
     ca-certificates \
     supervisor \
     libsodium-dev \
-    openssh \
-    # Install PHP extensions (included with dunglas/frankenphp)
+    brotli \
+    # Install PHP extensions
     && install-php-extensions \
     bz2 \
     pcntl \
@@ -69,6 +64,7 @@ RUN apk update; \
     exif \
     pdo_mysql \
     zip \
+    uv \
     intl \
     gd \
     redis \
@@ -105,45 +101,68 @@ RUN cp ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini
 
 USER ${USER}
 
-COPY --link --chown=${USER}:${USER} --from=vendor /usr/bin/composer /usr/bin/composer
-COPY --link --chown=${USER}:${USER} composer.json composer.lock ./
+COPY --link --chown=${WWWUSER}:${WWWUSER} --from=vendor /usr/bin/composer /usr/bin/composer
+
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/supervisord.conf /etc/supervisor/
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/octane/Swoole/supervisord.swoole.conf /etc/supervisor/conf.d/
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/supervisord.*.conf /etc/supervisor/conf.d/
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/php.ini ${PHP_INI_DIR}/conf.d/99-octane.ini
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/start-container /usr/local/bin/start-container
+COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/healthcheck /usr/local/bin/healthcheck
+
+RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
+
+###########################################
+
+FROM base AS common
+
+USER ${USER}
+
+COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
 
 RUN composer install \
     --no-dev \
     --no-interaction \
     --no-autoloader \
     --no-ansi \
-    --no-scripts
+    --no-scripts \
+    --audit
 
 ###########################################
-# Build frontend assets with NPM
+# Build frontend assets with Bun
 ###########################################
 
-ARG NODE_VERSION=20-alpine
+FROM oven/bun:${BUN_VERSION} AS build
 
-FROM node:${NODE_VERSION} AS build
+ARG APP_ENV
 
-ENV ROOT=/var/www/html
+ENV ROOT=/var/www/html \
+    APP_ENV=${APP_ENV} \
+    NODE_ENV=${APP_ENV:-production}
 
 WORKDIR ${ROOT}
 
-RUN npm config set update-notifier false && npm set progress=false
+COPY --link package.json bun.lock* ./
 
-COPY --link package*.json ./
-
-RUN if [ -f $ROOT/package-lock.json ]; \
-    then \
-    npm ci --loglevel=error --no-audit; \
-    else \
-    npm install --loglevel=error --no-audit; \
-    fi
+RUN bun install --frozen-lockfile
 
 COPY --link . .
+COPY --link --from=common ${ROOT}/vendor vendor
 
-RUN npm run build
+RUN bun run build
 
-COPY --link --chown=${USER}:${USER} . .
-COPY --link --chown=${USER}:${USER} --from=build ${ROOT}/public public
+###########################################
+
+FROM common AS runner
+
+USER ${USER}
+
+ENV WITH_HORIZON=false \
+    WITH_SCHEDULER=false \
+    WITH_REVERB=false
+
+COPY --link --chown=${WWWUSER}:${WWWUSER} . .
+COPY --link --chown=${WWWUSER}:${WWWUSER} --from=build ${ROOT}/public public
 
 RUN mkdir -p \
     storage/framework/sessions \
@@ -153,16 +172,6 @@ RUN mkdir -p \
     storage/logs \
     bootstrap/cache && chmod -R a+rw storage
 
-COPY --link --chown=${USER}:${USER} deployment/supervisord.conf /etc/supervisor/
-COPY --link --chown=${USER}:${USER} deployment/octane/FrankenPHP/supervisord.frankenphp.conf /etc/supervisor/conf.d/
-COPY --link --chown=${USER}:${USER} deployment/supervisord.*.conf /etc/supervisor/conf.d/
-COPY --link --chown=${USER}:${USER} deployment/start-container /usr/local/bin/start-container
-COPY --link --chown=${USER}:${USER} deployment/healthcheck /usr/local/bin/healthcheck
-COPY --link --chown=${USER}:${USER} deployment/php.ini ${PHP_INI_DIR}/conf.d/99-octane.ini
-
-# FrankenPHP embedded PHP configuration
-COPY --link --chown=${USER}:${USER} deployment/php.ini /lib/php.ini
-
 RUN composer install \
     --classmap-authoritative \
     --no-interaction \
@@ -170,14 +179,8 @@ RUN composer install \
     --no-dev \
     && composer clear-cache
 
-RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
-
-RUN cat deployment/utilities.sh >> ~/.bashrc
-
 EXPOSE 8000
-EXPOSE 443
-EXPOSE 443/udp
-EXPOSE 2019
+EXPOSE 8080
 
 ENTRYPOINT ["start-container"]
 
