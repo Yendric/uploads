@@ -3,12 +3,20 @@ FROM serversideup/php:8.4-fpm-nginx AS base
 ENV PHP_OPCACHE_ENABLE=1
 ENV AUTORUN_ENABLED=1
 ENV PHP_UPLOAD_MAX_FILE_SIZE=5G
+ENV UNIT_MAX_BODY_SIZE=5G
+ENV PHP_POST_MAX_SIZE=5G
 
 USER root
 
 COPY --chown=www-data:www-data composer.json composer.lock ./
 
+RUN install-php-extensions intl
+
+USER www-data
+
 RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+USER root
 
 COPY --chown=www-data:www-data . /var/www/html
 
@@ -25,7 +33,7 @@ RUN pnpm i
 
 COPY --from=base /var/www/html/vendor /app/vendor
 
-COPY . .
+COPY . . 
 RUN pnpm run build
 
 FROM base AS final
