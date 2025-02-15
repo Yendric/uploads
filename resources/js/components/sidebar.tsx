@@ -24,7 +24,7 @@ import {
     ContextMenuTrigger,
 } from "./ui/context-menu";
 
-export default function Sidebar({ className }: { className: string }) {
+export default function Sidebar({ className }: { className?: string }) {
     const { open: openFolderModal } = useModal(CreateFolderModal, {});
     const folders = usePage().props.folders as FolderResourceType[];
 
