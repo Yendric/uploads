@@ -3,8 +3,6 @@ import {
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
     Pagination as ShadcnPagination,
 } from "./ui/pagination";
 
@@ -24,14 +22,6 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
     return (
         <ShadcnPagination>
             <PaginationContent>
-                {currentPage !== 1 && (
-                    <PaginationItem>
-                        <PaginationPrevious
-                            href={`?page=${currentPage - 1}`}
-                            className="cursor-pointer"
-                        />
-                    </PaginationItem>
-                )}
                 {startPage > 1 && (
                     <>
                         <PaginationItem key={1}>
@@ -72,14 +62,6 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
                             </PaginationLink>
                         </PaginationItem>
                     </>
-                )}
-                {currentPage !== lastPage && (
-                    <PaginationItem>
-                        <PaginationNext
-                            className="cursor-pointer"
-                            href={`?page=${currentPage + 1}`}
-                        />
-                    </PaginationItem>
                 )}
             </PaginationContent>
         </ShadcnPagination>
