@@ -221,7 +221,7 @@ export default function MediaView({
 
     return (
         <>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline">
                         Map -{" "}
@@ -248,7 +248,7 @@ export default function MediaView({
                         ></input>
                     )}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                     <a href={route("folder.zip", folder.uuid)}>
                         <Button variant="secondary">
                             <DownloadIcon className=" h-4 w-4" />

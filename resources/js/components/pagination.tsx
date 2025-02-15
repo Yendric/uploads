@@ -14,7 +14,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ lastPage, currentPage }: PaginationProps) {
-    let window_size = currentPage == 1 || currentPage == lastPage ? 4 : 1;
+    let window_size = currentPage == 1 || currentPage == lastPage ? 2 : 1;
     let startPage = Math.max(1, currentPage - window_size);
     let endPage = Math.min(lastPage, currentPage + window_size);
 

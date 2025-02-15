@@ -64,9 +64,9 @@ export default function FileShow({ file }: { file: FileResourceType }) {
 
     return (
         <>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="space-y-1">
-                    <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline">
+                    <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline break-all">
                         Media -{" "}
                     </h2>
                     {!nameEdit ? (
@@ -94,7 +94,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                         {file.date} - {file.size}
                     </p>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                     {isAuth && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
