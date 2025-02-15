@@ -10,7 +10,8 @@ USER root
 
 COPY --chown=www-data:www-data composer.json composer.lock ./
 
-RUN install-php-extensions intl
+RUN install-php-extensions intl excimer
+# ^excimer is required for sentry
 
 USER www-data
 
