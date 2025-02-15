@@ -8,7 +8,7 @@ https://upload.yendric.be
 
 Uploads is a file sharing website written in Laravel and React with InertiaJS.
 Thanks to Laravels S3 integration, it can be used to manage and share files stored in an S3 bucket.
-It also allows sharing code files, which can be created on-site. Includes a Dockerfile for easy deployment.
+It also allows sharing code files, which can be created on-page. Includes a Dockerfile for easy deployment.
 
 ## Contribute
 
