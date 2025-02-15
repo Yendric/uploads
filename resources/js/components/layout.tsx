@@ -21,12 +21,7 @@ export default function Layout({ children }: LayoutProps) {
     useEffect(() => {
         // Prevent swipe to go back on iOS
         const handleTouchStart = (e: TouchEvent) => {
-            if (
-                e.touches[0]?.pageX &&
-                e.touches[0]?.pageX > 20 &&
-                e.touches[0]?.pageX < window.innerWidth - 20
-            )
-                return;
+            if (e.touches[0]?.pageX && e.touches[0]?.pageX > 20) return;
             e.preventDefault();
         };
 

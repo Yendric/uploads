@@ -32,8 +32,9 @@ export function File(props: MediaLibraryImageProps) {
             ) : props.file.type == FileType.Video ? (
                 <div className="overflow-hidden rounded-md">
                     <video
+                        preload="metadata"
                         className={props.className}
-                        src={props.file.url}
+                        src={`${props.file.url}#t=0.1`}
                         controls={props.controls}
                     />
                 </div>
