@@ -18,12 +18,33 @@ export default function Layout({ children }: LayoutProps) {
         document.dispatchEvent(new Event("render-finish"));
     });
 
+    useEffect(() => {
+        // Prevent swipe to go back on iOS
+        const handleTouchStart = (e: TouchEvent) => {
+            if (
+                e.touches[0]?.pageX &&
+                e.touches[0]?.pageX > 20 &&
+                e.touches[0]?.pageX < window.innerWidth - 20
+            )
+                return;
+            e.preventDefault();
+        };
+
+        document.addEventListener("touchstart", handleTouchStart, {
+            passive: false,
+        });
+
+        return () => {
+            document.removeEventListener("touchstart", handleTouchStart);
+        };
+    }, []);
+
     const isAuth = useIsAuth();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
     const handlers = useSwipeable({
         onSwipedRight: (eventData) => {
-            if (eventData.initial[0] < 50) {
+            if (eventData.initial[0] < 200) {
                 setMobileSidebarOpen(true);
             }
         },
