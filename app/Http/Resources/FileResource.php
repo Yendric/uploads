@@ -28,7 +28,7 @@ class FileResource extends JsonResource
             'size' => $this->size(),
             'date' => $this->date(),
             'type' => $this->type(),
-            'url' => Storage::temporaryUrl($this->path(), now()->addMinutes(5)),
+            'url' => Storage::url($this->path()),
             'folders' => $this->folders->pluck('id'),
             'id' => $this->id,
             'uuid' => $this->uuid,
