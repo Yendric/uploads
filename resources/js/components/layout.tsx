@@ -44,7 +44,7 @@ export default function Layout({ children }: LayoutProps) {
 
     const handlers = useSwipeable({
         onSwipedRight: (eventData) => {
-            if (eventData.initial[0] < 200) {
+            if (eventData.initial[0] < 50) {
                 setMobileSidebarOpen(true);
             }
         },

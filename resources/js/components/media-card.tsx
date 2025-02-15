@@ -90,7 +90,7 @@ export default function MediaCard({ file }: { file: FileResourceType }) {
                 </ContextMenuContent>
             </ContextMenu>
             <div className="space-y-1 text-sm">
-                <h3 className="font-medium leading-none text-lg break-all">
+                <h3 className="font-medium leading-none text-lg break-all text-wrap">
                     {file.name}
                 </h3>
                 <p className="text-xs text-muted-foreground">
