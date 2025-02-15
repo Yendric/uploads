@@ -71,7 +71,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                     </h2>
                     {!nameEdit ? (
                         <h2
-                            className="text-2xl whitespace-pre font-semibold tracking-tight cursor-pointer inline"
+                            className="text-2xl whitespace-pre font-semibold tracking-tight cursor-pointer inline break-all"
                             onClick={() => isAuth && setNameEdit(true)}
                         >
                             {name}{" "}

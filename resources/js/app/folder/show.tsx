@@ -223,12 +223,12 @@ export default function MediaView({
         <>
             <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="space-y-1">
-                    <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline">
+                    <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline break-all">
                         Map -{" "}
                     </h2>
                     {!nameEdit ? (
                         <h2
-                            className="text-2xl font-semibold tracking-tight cursor-pointer inline"
+                            className="text-2xl font-semibold tracking-tight cursor-pointer inline break-all"
                             onClick={() => isAuth && setNameEdit(true)}
                         >
                             {name}{" "}
