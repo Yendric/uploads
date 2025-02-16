@@ -1,10 +1,12 @@
 FROM yendric/php-base:8.4 AS base
 
 ENV PHP_OPCACHE_ENABLE=1
-ENV AUTORUN_ENABLED=1
+ENV AUTORUN_ENABLED=true
 ENV PHP_UPLOAD_MAX_FILE_SIZE=5G
 ENV UNIT_MAX_BODY_SIZE=5G
 ENV PHP_POST_MAX_SIZE=5G
+
+USER www-data
 
 COPY --chown=www-data:www-data composer.json composer.lock ./
 
@@ -30,12 +32,13 @@ RUN pnpm run build
 
 FROM base AS final
 
-USER root
-
 COPY --from=frontend-builder /app/public /var/www/html/public
+
+USER root
 
 RUN chown -R www-data:www-data /var/www/html/public
 
-
+RUN echo "opcache.jit=on" > /usr/local/etc/php/conf.d/zzz-custom-php.ini 
+RUN php artisan optimize
 
 USER www-data
