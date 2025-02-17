@@ -25,7 +25,7 @@ import useIsAuth from "@/hooks/use-is-auth";
 import { useModal } from "@/hooks/use-modal";
 import { toast } from "@/hooks/use-toast";
 import type { FileResourceType, FolderResourceType } from "@/types/types";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { DotsHorizontalIcon, DownloadIcon } from "@radix-ui/react-icons";
 import {
     flexRender,
@@ -221,6 +221,7 @@ export default function MediaView({
 
     return (
         <>
+            <Head title={`Map ${name}`} />
             <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline break-all text-wrap">

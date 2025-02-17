@@ -4,6 +4,8 @@ import { resolveRoutes } from "./shared";
 
 createInertiaApp({
     resolve: resolveRoutes,
+    title: (title) =>
+        title ? `${title} - Yendric uploads` : "Yendric uploads",
     setup({ el, App, props }) {
         createRoot(el).render(<App {...props} />);
     },

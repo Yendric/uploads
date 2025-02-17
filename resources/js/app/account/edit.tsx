@@ -1,6 +1,6 @@
 import { Input } from "@/components/form";
 import { Button } from "@/components/ui/button";
-import { useForm, usePage } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import { Separator } from "@radix-ui/react-separator";
 import type { FormEvent } from "react";
 
@@ -22,6 +22,7 @@ export default function AccountEdit() {
 
     return (
         <>
+            <Head title="Account beheren" />
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight cursor-pointer inline">

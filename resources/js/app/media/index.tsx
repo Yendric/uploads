@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/hooks/use-modal";
 import type { FileResourceType } from "@/types/types";
+import { Head } from "@inertiajs/react";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 
 interface MediaIndexProps {
@@ -23,6 +24,7 @@ export default function MediaIndex({ media }: MediaIndexProps) {
 
     return (
         <>
+            <Head title="Media" />
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight">

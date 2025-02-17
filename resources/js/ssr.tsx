@@ -12,6 +12,8 @@ createServer((page) =>
         page,
         render: ReactDOMServer.renderToString,
         resolve: resolveRoutes,
+        title: (title) =>
+            title ? `${title} - Yendric uploads` : "Yendric uploads",
         setup: ({ App, props }) => {
             // Hacky way to get ziggy working with ssr
             const Ziggy = {

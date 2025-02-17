@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import { Label } from "@radix-ui/react-label";
 import { type FormEvent, type ReactElement } from "react";
 
@@ -25,6 +25,7 @@ function Login() {
 
     return (
         <div className="w-screen h-screen flex justify-center items-center">
+            <Head title="Inloggen" />
             <form onSubmit={handleSubmit}>
                 <Card className="w-full max-w-sm">
                     <CardHeader>

@@ -1,4 +1,4 @@
-import { Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { DotsHorizontalIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import {
     type ColumnDef,
@@ -187,6 +187,7 @@ export default function CodeIndex({ files }: FileIndexProps) {
 
     return (
         <>
+            <Head title="Code" />
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight">
