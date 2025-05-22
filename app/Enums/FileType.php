@@ -35,7 +35,7 @@ enum FileType: string
             return FileType::Pdf;
         } elseif (contains_any($ext, ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"])) {
             return FileType::OFFICE;
-        } elseif (contains_any($mime, ["text", "application"])) {
+        } elseif (contains_any($mime, ["text"])) {
             return FileType::Text;
         } else {
             return FileType::Other;
