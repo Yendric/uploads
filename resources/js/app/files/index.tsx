@@ -33,6 +33,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useModal } from "@/hooks/use-modal";
+import { toast } from "@/hooks/use-toast";
 import type { FileResourceType, FolderResourceType } from "@/types/types";
 
 interface FileIndexProps {
@@ -48,6 +49,11 @@ interface FileIndexProps {
 export default function AllIndex({ files }: FileIndexProps) {
     const { open: openFileModal } = useModal(UploadFileModal, {});
     const folders = usePage().props.folders as FolderResourceType[];
+
+    function share(url: string) {
+        navigator.clipboard.writeText(url);
+        toast({ title: "Link naar bestand gekopieerd." });
+    }
 
     const columns = React.useMemo<ColumnDef<FileResourceType>[]>(
         () => [
@@ -146,7 +152,7 @@ export default function AllIndex({ files }: FileIndexProps) {
                                         </DropdownMenuSubContent>
                                     </DropdownMenuSub>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="cursor-pointer">
+                                    <DropdownMenuItem className="cursor-pointer" onClick={() => share(file.url)}>
                                         Delen
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -212,10 +218,10 @@ export default function AllIndex({ files }: FileIndexProps) {
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
+                                                header.column.columnDef
+                                                    .header,
+                                                header.getContext()
+                                            )}
                                     </TableHead>
                                 ))}
                             </TableRow>
@@ -244,7 +250,7 @@ export default function AllIndex({ files }: FileIndexProps) {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    Geen resultaten.
                                 </TableCell>
                             </TableRow>
                         )}

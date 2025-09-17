@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipArchive;
 use Illuminate\Support\Str;
+use ZipStream\ZipStream;
 
 class FolderController extends Controller
 {
@@ -54,24 +55,23 @@ class FolderController extends Controller
         return redirect()->back()->with('success', 'Map succesvol bijgewerkt');
     }
 
-    public function zip(Folder $folder): BinaryFileResponse|RedirectResponse
+    public function zip(Folder $folder): ?RedirectResponse
     {
-        $zip = new ZipArchive();
-        $name = Str::random(20) . ".zip";
-
-        if ($zip->open("/tmp/$name", ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            return redirect()->back()->with('error', 'Er is iets misgegaan bij het zippen van de map');
-        }
-
-        // TODO: check if works with s3
+        $zip = new ZipStream(
+            outputName: $folder->name . '.zip',
+            sendHttpHeaders: true
+        );
 
         foreach ($folder->files as $file) {
-            $zip->addFromString($file->name, Storage::get($file->path()) ?? "");
+            $stream = Storage::readStream($file->path());
+            if (is_null($stream)) {
+                return redirect()->back()->with('error', 'Er is iets misgegaan bij het zippen van de map');
+            }
+            $zip->addFileFromStream($file->name, $stream);
         }
 
-        $zip->addFromString("GENERATED", (new DateTime())->format('Y-m-d H:i:s'));
-        $zip->close();
+        $zip->finish();
 
-        return response()->download("/tmp/$name", $folder->name . '.zip');
+        return null;
     }
 }

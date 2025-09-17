@@ -61,6 +61,11 @@ export default function MediaView({
 
     const isAuth = useIsAuth();
 
+    function share(url: string) {
+        navigator.clipboard.writeText(url);
+        toast({ title: "Link naar bestand gekopieerd." });
+    }
+
     const [nameEdit, setNameEdit] = useState(false);
     const [name, setName] = useState(folder.name);
     function updateName() {
@@ -180,7 +185,7 @@ export default function MediaView({
                                         </DropdownMenuSubContent>
                                     </DropdownMenuSub>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="cursor-pointer">
+                                    <DropdownMenuItem className="cursor-pointer" onClick={() => share(file.url)}>
                                         Delen
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -287,10 +292,10 @@ export default function MediaView({
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
-                                                          header.column
-                                                              .columnDef.header,
-                                                          header.getContext()
-                                                      )}
+                                                        header.column
+                                                            .columnDef.header,
+                                                        header.getContext()
+                                                    )}
                                             </TableHead>
                                         ))}
                                     </TableRow>
@@ -322,7 +327,7 @@ export default function MediaView({
                                             colSpan={columns.length}
                                             className="h-24 text-center"
                                         >
-                                            No results.
+                                            Geen resultaten.
                                         </TableCell>
                                     </TableRow>
                                 )}

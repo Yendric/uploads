@@ -43,9 +43,13 @@ Route::middleware(Authenticate::class)->group(function () {
     Route::name('file.')
         ->prefix('/file')
         ->group(function () {
-            Route::post('/upload', [FileController::class, 'upload'])
-                ->name('upload')
+            Route::post('/presign', [FileController::class, 'presignUpload'])
+                ->name('presign')
                 ->can('create', File::class);
+            Route::post('/complete', [FileController::class, 'completeUpload'])
+                ->name('complete')
+                ->can('create', File::class);
+
 
             Route::put('/{file}', [FileController::class, 'update'])->name('update')->can('update', 'file');
             Route::delete('/{file}', [FileController::class, 'destroy'])

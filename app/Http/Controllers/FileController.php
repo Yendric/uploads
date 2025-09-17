@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompleteUploadRequest;
 use App\Http\Requests\FileUpdateRequest;
 use App\Http\Requests\FileUploadRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller
@@ -41,29 +44,56 @@ class FileController extends Controller
         ]);
     }
 
-    public function upload(FileUploadRequest $request): RedirectResponse
+    public function completeUpload(CompleteUploadRequest $request): RedirectResponse
     {
-        $uploadedFile = $request->file('file');
+        /** @var string */
+        $uuid = $request->input('uuid');
+        /** @var string */
+        $name = $request->input('name');
+        /** @var string */
+        $mime = $request->input('mime');
 
-        if (!$uploadedFile instanceof UploadedFile) {
-            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
+        $tmpKey = 'tmp/' . $uuid;
+
+        if (!Storage::exists($tmpKey)) {
+            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand (Upload niet gevonden).');
         }
-        $name = $uploadedFile->getClientOriginalName();
 
+        $size = Storage::size($tmpKey);
 
         $file = Auth::user()?->files()->create([
             'name' => $name,
-            'mime_type' => $uploadedFile->getMimeType(),
-            'size' => $uploadedFile->getSize(),
+            'mime_type' => $mime,
+            'size' => $size,
         ]);
 
         if (is_null($file)) {
             return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
         }
 
-        $uploadedFile->storeAs(strval($file->uuid), $name);
+        Storage::move($tmpKey, strval($file->uuid) . '/' . $name);
 
         return redirect()->to(route('file.show', $file->uuid))->with(['success' => 'Bestand succesvol geüpload.']);
+    }
+
+    public function presignUpload(): JsonResponse
+    {
+        $uuid = Str::uuid();
+
+        $tmpKey = 'tmp/' . $uuid;
+
+        /** @phpstan-ignore-next-line */
+        $url = Storage::temporaryUploadUrl(
+            $tmpKey,
+            now()->addMinutes(30)
+        )["url"];
+
+
+        return response()->json([
+            'url' => $url,
+            'uuid' => $uuid,
+            'expires_in' => 30 * 60
+        ]);
     }
 
     public function all(): Response
