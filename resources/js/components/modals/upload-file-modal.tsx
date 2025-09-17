@@ -87,8 +87,8 @@ export default function UploadFileModal({ open, onClose }: Props) {
                     lastLoadedRef.current = p.loaded;
                     lastTimeRef.current = now;
 
-                    if (p.loaded > 0 && p.total > 0 && speed > 0) {
-                        setEta((p.total - p.loaded) / speed);
+                    if (p.loaded > 0 && p.total > 0 && (deltaLoaded / deltaTime) > 0) {
+                        setEta((p.total - p.loaded) / (deltaLoaded / deltaTime));
                     } else {
                         setEta(0);
                     }
