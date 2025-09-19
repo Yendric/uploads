@@ -50,7 +50,7 @@ class FileController extends Controller
         $uuid = $request->input('uuid');
         /** @var string */
         $name = $request->input('name');
-        /** @var string */
+        /** @var ?string */
         $mime = $request->input('mime');
 
         $tmpKey = 'tmp/' . $uuid;
@@ -63,7 +63,7 @@ class FileController extends Controller
 
         $file = Auth::user()?->files()->create([
             'name' => $name,
-            'mime_type' => $mime,
+            'mime_type' => $mime ?? "text/plain",
             'size' => $size,
         ]);
 
