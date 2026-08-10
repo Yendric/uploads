@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: simple
+
+  # Releases aangemaakt met GITHUB_TOKEN triggeren geen `on: release` workflows,
+  # dus de image build hangt aan de release-please job in dezelfde workflow.
+  docker:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        run: |
+          docker build \
+            -t ghcr.io/yendric/uploads:${{ needs.release-please.outputs.tag_name }} \
+            -t ghcr.io/yendric/uploads:latest .
+          docker push ghcr.io/yendric/uploads:${{ needs.release-please.outputs.tag_name }}
+          docker push ghcr.io/yendric/uploads:latest
