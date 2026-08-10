@@ -8,76 +8,64 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Head, useForm } from "@inertiajs/react";
+import { Form, Head } from "@inertiajs/react";
 import { Label } from "@radix-ui/react-label";
-import { type FormEvent, type ReactElement } from "react";
+import { type ComponentType } from "react";
 
 function Login() {
-    const { data, setData, post, errors, processing } = useForm({
-        email: "",
-        password: "",
-    });
-
-    function handleSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        post("/login");
-    }
-
     return (
         <div className="w-screen h-screen flex justify-center items-center">
             <Head title="Inloggen" />
-            <form onSubmit={handleSubmit}>
-                <Card className="w-full max-w-sm">
-                    <CardHeader>
-                        <CardTitle className="text-2xl">Login</CardTitle>
-                        <CardDescription>
-                            Vul je e-mail en wachtwoord in om toegang te krijgen
-                            tot het dashboard.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
-                        <div className="grid gap-2">
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                error={errors.email}
-                                onChange={(e) =>
-                                    setData("email", e.target.value)
-                                }
-                                placeholder="voorbeeld@domein.be"
-                                required
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Wachtwoord</Label>
-                            <Input
-                                value={data.password}
-                                onChange={(e) =>
-                                    setData("password", e.target.value)
-                                }
-                                error={errors.password}
-                                id="password"
-                                type="password"
-                                required
-                            />
-                        </div>
-                    </CardContent>
-                    <CardFooter>
-                        <Button
-                            className="w-full"
-                            type="submit"
-                            disabled={processing}
-                        >
-                            Inloggen
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </form>
+            <Form action="/login" method="post">
+                {({ errors, processing }) => (
+                    <Card className="w-full max-w-sm">
+                        <CardHeader>
+                            <CardTitle className="text-2xl">Login</CardTitle>
+                            <CardDescription>
+                                Vul je e-mail en wachtwoord in om toegang te
+                                krijgen tot het dashboard.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-4">
+                            <div className="grid gap-2">
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    error={errors.email}
+                                    placeholder="voorbeeld@domein.be"
+                                    required
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="password">Wachtwoord</Label>
+                                <Input
+                                    error={errors.password}
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    required
+                                />
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                className="w-full"
+                                type="submit"
+                                disabled={processing}
+                            >
+                                Inloggen
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                )}
+            </Form>
         </div>
     );
 }
 
-Login.layout = (page: ReactElement) => page;
+Login.layout = [] as ComponentType[];
 
 export default Login;

@@ -14,7 +14,6 @@ import { Label } from "./ui/label";
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     error?: string;
     label?: string;
-    value: string;
 };
 
 export function Input({ error, label, className, ...props }: InputProps) {
