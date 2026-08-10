@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Yendric/uploads/compare/v1.1.1...v1.2.0) (2026-08-10)
+
+
+### Features
+
+* link previews for shared file pages ([821a55a](https://github.com/Yendric/uploads/commit/821a55a44bf387dc46686cfe596e69468f6a3ca5))
+
 ## [1.1.1](https://github.com/Yendric/uploads/compare/v1.1.0...v1.1.1) (2026-08-10)
 
 
