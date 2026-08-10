@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\FileType;
 use App\Http\Requests\CompleteUploadRequest;
 use App\Http\Requests\FileUpdateRequest;
 use App\Http\Resources\FileResource;
@@ -131,7 +132,45 @@ class FileController extends Controller
     {
         return Inertia::render('files/show', [
             'file' => (new FileResource($file))->toArray($request),
-        ]);
+        ])->withViewData(['meta' => $this->linkPreviewTags($file)]);
+    }
+
+    /**
+     * Meta tags for link previews on Discord, Twitter, etc. Crawlers don't run
+     * javascript, so these have to be rendered into the root blade view.
+     *
+     * @return array<string, string>
+     */
+    private function linkPreviewTags(File $file): array
+    {
+        $tags = [
+            'og:title' => $file->name,
+            'og:type' => 'website',
+            'og:url' => route('file.show', $file->uuid),
+            'og:site_name' => config()->string('app.name'),
+            'og:description' => $file->size().' • '.$file->date(),
+            'twitter:card' => 'summary',
+            'twitter:title' => $file->name,
+        ];
+
+        // crawlers need an absolute url, but Storage::url() is relative for local disks
+        $url = Storage::url($file->path());
+        if (! Str::startsWith($url, ['http://', 'https://'])) {
+            $url = url($url);
+        }
+
+        if ($file->type() === FileType::Image) {
+            $tags['og:image'] = $url;
+            $tags['og:image:type'] = $file->mime_type;
+            $tags['twitter:card'] = 'summary_large_image';
+            $tags['twitter:image'] = $url;
+        } elseif ($file->type() === FileType::Video) {
+            $tags['og:type'] = 'video.other';
+            $tags['og:video'] = $url;
+            $tags['og:video:type'] = $file->mime_type;
+        }
+
+        return $tags;
     }
 
     public function download(Request $request, File $file): StreamedResponse|RedirectResponse

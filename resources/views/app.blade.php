@@ -18,6 +18,9 @@
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    @foreach ($meta ?? [] as $property => $content)
+      <meta {{ str_starts_with($property, 'og:') ? 'property' : 'name' }}="{{ $property }}" content="{{ $content }}" />
+    @endforeach
     @viteReactRefresh
     @routes
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
