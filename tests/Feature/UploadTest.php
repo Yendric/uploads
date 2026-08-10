@@ -73,6 +73,40 @@ class UploadTest extends TestCase
         $this->assertSame(0, $user->files()->count());
     }
 
+    public function test_unknown_mime_falls_back_to_detected_type(): void
+    {
+        Storage::fake();
+        $user = User::factory()->create();
+        $uuid = Str::uuid()->toString();
+        Storage::put('tmp/'.$uuid, "\x00\x01\x02\x03binary");
+
+        $this->actingAs($user)->post(route('file.complete'), [
+            'uuid' => $uuid,
+            'name' => 'unixbinary',
+        ]);
+
+        $file = $user->files()->first();
+        $this->assertNotNull($file);
+        $this->assertSame('application/octet-stream', $file->mime_type);
+    }
+
+    public function test_extensionless_text_files_are_detected_as_text(): void
+    {
+        Storage::fake();
+        $user = User::factory()->create();
+        $uuid = Str::uuid()->toString();
+        Storage::put('tmp/'.$uuid, "all:\n\techo 'building'\n\nclean:\n\trm -rf dist\n");
+
+        $this->actingAs($user)->post(route('file.complete'), [
+            'uuid' => $uuid,
+            'name' => 'Makefile',
+        ]);
+
+        $file = $user->files()->first();
+        $this->assertNotNull($file);
+        $this->assertStringContainsString('text', $file->mime_type);
+    }
+
     public function test_presign_requires_authentication(): void
     {
         $this->post(route('file.presign'))->assertRedirect(route('login'));

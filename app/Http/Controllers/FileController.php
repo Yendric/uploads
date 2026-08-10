@@ -6,6 +6,7 @@ use App\Http\Requests\CompleteUploadRequest;
 use App\Http\Requests\FileUpdateRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use App\Support\MimeType;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -59,9 +60,14 @@ class FileController extends Controller
 
         $size = Storage::size($tmpKey);
 
+        // browsers send an empty mime for unknown file types
+        if ($mime === null) {
+            $mime = MimeType::detect($tmpKey);
+        }
+
         $file = Auth::user()?->files()->create([
             'name' => $name,
-            'mime_type' => $mime ?? 'text/plain',
+            'mime_type' => $mime,
             'size' => $size,
         ]);
 

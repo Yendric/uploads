@@ -8,28 +8,45 @@ interface MediaLibraryImageProps {
     controls?: boolean;
 }
 
-// files bigger than this will not be loaded as text preview
+// files bigger than this are not shown as a text preview
 const MAX_TEXT_PREVIEW_BYTES = 512 * 1024;
 
+type TextPreview =
+    | { state: "loading" }
+    | { state: "too-large" }
+    | { state: "ready"; code: string };
+
 export function File(props: MediaLibraryImageProps) {
-    const [code, setCode] = useState("");
-    const [truncated, setTruncated] = useState(false);
+    const [preview, setPreview] = useState<TextPreview>({ state: "loading" });
 
     useEffect(() => {
         if (props.file.type != FileType.Text) return;
 
-        fetch(props.file.url, {
-            redirect: "follow",
-            headers: { Range: `bytes=0-${MAX_TEXT_PREVIEW_BYTES - 1}` },
-        }).then(async (response) => {
-            const text = await response.text();
-            if (text.length >= MAX_TEXT_PREVIEW_BYTES) {
-                setTruncated(true);
-                setCode(text.slice(0, MAX_TEXT_PREVIEW_BYTES));
-            } else {
-                setCode(text);
+        const controller = new AbortController();
+
+        (async () => {
+            const response = await fetch(props.file.url, {
+                redirect: "follow",
+                signal: controller.signal,
+            });
+
+            const size = Number(response.headers.get("content-length") ?? 0);
+            if (size > MAX_TEXT_PREVIEW_BYTES) {
+                setPreview({ state: "too-large" });
+                controller.abort();
+                return;
             }
+
+            const text = await response.text();
+            setPreview({
+                state: "ready",
+                code: text.slice(0, MAX_TEXT_PREVIEW_BYTES),
+            });
+        })().catch(() => {
+            /* aborted or network error: no preview */
         });
+
+        return () => controller.abort();
     }, [props.file.url, props.file.type]);
 
     return (
@@ -73,21 +90,25 @@ export function File(props: MediaLibraryImageProps) {
                         className="h-full w-full block"
                     ></iframe>
                 </div>
-            ) : (
-                props.file.type == FileType.Text && (
+            ) : props.file.type == FileType.Text ? (
+                preview.state == "ready" ? (
                     <div className="rounded-md border-gray border p-2">
                         <AutoHighlight
-                            code={code}
+                            code={preview.code}
                             ext={getFileExtension(props.file.name)}
                         />
-                        {truncated && (
-                            <p className="text-xs text-muted-foreground mt-2">
-                                Preview beperkt tot de eerste 512 KB — download
-                                het bestand voor de volledige inhoud.
-                            </p>
-                        )}
                     </div>
+                ) : preview.state == "loading" ? null : (
+                    <p className="rounded-md border-gray border p-6 text-center text-sm text-muted-foreground">
+                        Dit bestand is te groot om hier te tonen, download het
+                        om de inhoud te bekijken.
+                    </p>
                 )
+            ) : (
+                <p className="rounded-md border-gray border p-6 text-center text-sm text-muted-foreground">
+                    Geen voorbeeld beschikbaar voor dit bestandstype, gebruik de
+                    downloadknop.
+                </p>
             )}
         </>
     );
