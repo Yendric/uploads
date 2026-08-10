@@ -149,7 +149,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
             </div>
 
             <Separator className="my-4" />
-            <div className="space-y-3 mx-auto h-full">
+            <div className="min-h-0 flex-1 space-y-3">
                 <File className="mx-auto" file={file} controls={true} />
             </div>
         </>

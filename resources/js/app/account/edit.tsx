@@ -34,7 +34,7 @@ export default function AccountEdit() {
             </div>
 
             <Separator className="my-4" />
-            <div className="space-y-3 mx-auto h-full">
+            <div className="space-y-3">
                 <form onSubmit={submit} className="grid gap-4">
                     <Input
                         type="text"
