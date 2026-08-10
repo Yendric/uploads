@@ -24,7 +24,7 @@ class FileResource extends JsonResource
         return [
             'name' => $this->name,
             'size' => $this->size(),
-            'size_bytes' => (int) $this->size,
+            'size_bytes' => $this->size,
             'date' => $this->date(),
             'type' => $this->type(),
             'url' => Storage::url($this->path()),
