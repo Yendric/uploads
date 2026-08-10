@@ -75,7 +75,17 @@ class FileController extends Controller
             return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
         }
 
-        Storage::move($tmpKey, strval($file->uuid).'/'.$name);
+        try {
+            Storage::getDriver()->move($tmpKey, strval($file->uuid).'/'.$name, [
+                'ContentType' => $mime,
+                'MetadataDirective' => 'REPLACE',
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+            $file->delete();
+
+            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
+        }
 
         return redirect()->to(route('file.show', $file->uuid))->with(['success' => 'Bestand succesvol geüpload.']);
     }
