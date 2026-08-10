@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/Yendric/uploads/compare/v1.0.0...v1.0.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* dark mode by moving dark class to html element ([4c0346d](https://github.com/Yendric/uploads/commit/4c0346d9c8ecc9b03b6018240e5b1153c118a543))
+* text preview size limit and content-based mime detection ([0b5bfdc](https://github.com/Yendric/uploads/commit/0b5bfdc00c0ec7d6f740a51bf974fab10565fb43))
+
 ## 1.0.0 (2026-08-10)
 
 
