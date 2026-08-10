@@ -1,4 +1,5 @@
 import { useModal } from "@/hooks/use-modal";
+import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { FileResourceType, FolderResourceType } from "@/types/types";
 import { Link, router, usePage } from "@inertiajs/react";
@@ -24,14 +25,16 @@ export default function MediaCard({ file }: { file: FileResourceType }) {
     });
 
     function toggleFolder(id: number) {
-        let folders = file.folders;
-        if (folders.includes(id)) {
-            folders = folders.filter((folderId) => folderId !== id);
-        } else {
-            folders.push(id);
-        }
+        const folders = file.folders.includes(id)
+            ? file.folders.filter((folderId) => folderId !== id)
+            : [...file.folders, id];
 
         router.put(route("file.update", file.uuid), { folders });
+    }
+
+    async function copyShareLink() {
+        await navigator.clipboard.writeText(route("file.show", file.uuid));
+        toast({ title: "Link gekopieerd naar klembord" });
     }
 
     return (
@@ -67,7 +70,10 @@ export default function MediaCard({ file }: { file: FileResourceType }) {
                         </ContextMenuSubContent>
                     </ContextMenuSub>
                     <ContextMenuSeparator />
-                    <ContextMenuItem className="cursor-pointer">
+                    <ContextMenuItem
+                        className="cursor-pointer"
+                        onClick={copyShareLink}
+                    >
                         Delen
                     </ContextMenuItem>
                     <ContextMenuSeparator />

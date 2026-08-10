@@ -32,12 +32,9 @@ export default function FileShow({ file }: { file: FileResourceType }) {
     });
 
     function toggleFolder(id: number) {
-        let folders = file.folders;
-        if (folders.includes(id)) {
-            folders = folders.filter((folderId) => folderId !== id);
-        } else {
-            folders.push(id);
-        }
+        const folders = file.folders.includes(id)
+            ? file.folders.filter((folderId) => folderId !== id)
+            : [...file.folders, id];
 
         router.put(route("file.update", file.uuid), { folders });
     }

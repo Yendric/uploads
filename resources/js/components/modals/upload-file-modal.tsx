@@ -66,48 +66,57 @@ export default function UploadFileModal({ open, onClose }: Props) {
         lastLoadedRef.current = 0;
         lastTimeRef.current = Date.now();
 
-        const presign = await axios.post<{ url: string, uuid: string, expires_in: number }>(route('file.presign'));
-        const { url, uuid } = presign.data;
+        try {
+            const presign = await axios.post<{ url: string, uuid: string, expires_in: number }>(route('file.presign'));
+            const { url, uuid } = presign.data;
 
-        await axios.put(url, file, {
-            onUploadProgress(p) {
-                if (p.total && p.loaded) {
-                    const now = Date.now();
-                    const timeElapsed = (now - (startTimeRef.current ?? now)) / 1000;
-                    setElapsed(timeElapsed);
+            await axios.put(url, file, {
+                onUploadProgress(p) {
+                    if (p.total && p.loaded) {
+                        const now = Date.now();
+                        const timeElapsed = (now - (startTimeRef.current ?? now)) / 1000;
+                        setElapsed(timeElapsed);
 
-                    const percent = Math.round((p.loaded / p.total) * 100);
-                    setProgress(percent);
+                        const percent = Math.round((p.loaded / p.total) * 100);
+                        setProgress(percent);
 
-                    const deltaLoaded = p.loaded - lastLoadedRef.current;
-                    const deltaTime = (now - lastTimeRef.current) / 1000;
-                    if (deltaTime > 0) {
-                        setSpeed(deltaLoaded / deltaTime);
-                    }
-                    lastLoadedRef.current = p.loaded;
-                    lastTimeRef.current = now;
+                        const deltaLoaded = p.loaded - lastLoadedRef.current;
+                        const deltaTime = (now - lastTimeRef.current) / 1000;
+                        if (deltaTime > 0) {
+                            setSpeed(deltaLoaded / deltaTime);
+                        }
+                        lastLoadedRef.current = p.loaded;
+                        lastTimeRef.current = now;
 
-                    if (p.loaded > 0 && p.total > 0 && (deltaLoaded / deltaTime) > 0) {
-                        setEta((p.total - p.loaded) / (deltaLoaded / deltaTime));
-                    } else {
-                        setEta(0);
+                        if (p.loaded > 0 && p.total > 0 && (deltaLoaded / deltaTime) > 0) {
+                            setEta((p.total - p.loaded) / (deltaLoaded / deltaTime));
+                        } else {
+                            setEta(0);
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        router.post(route('file.complete'), {
-            uuid,
-            name: file.name,
-            mime: file.type
-        });
+            router.post(route('file.complete'), {
+                uuid,
+                name: file.name,
+                mime: file.type
+            });
 
-        setUploading(false);
-        setProgress(0);
-        setSpeed(0);
-        setElapsed(0);
-        setEta(0);
-        onClose();
+            onClose();
+        } catch {
+            toast({
+                title: "Uploaden mislukt",
+                description: "Er is iets misgegaan bij het uploaden van het bestand. Probeer het opnieuw.",
+                variant: "destructive",
+            });
+        } finally {
+            setUploading(false);
+            setProgress(0);
+            setSpeed(0);
+            setElapsed(0);
+            setEta(0);
+        }
     }
 
     return (

@@ -5,13 +5,14 @@ import { Separator } from "@radix-ui/react-separator";
 import type { FormEvent } from "react";
 
 export default function AccountEdit() {
+    const user = usePage().props.auth.user;
     const { data, setData, errors, put, processing } = useForm<{
         name: string;
         email: string;
         password: string | null;
     }>({
-        name: usePage().props.auth.user.name,
-        email: usePage().props.auth.user.email,
+        name: user?.name ?? "",
+        email: user?.email ?? "",
         password: null,
     });
 
