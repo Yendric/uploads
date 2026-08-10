@@ -76,7 +76,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                         </h2>
                     ) : (
                         <input
-                            className="!mt-0 bg-transparent text-2xl font-semibold tracking-tight cursor-pointer inline"
+                            className="mt-0! bg-transparent text-2xl font-semibold tracking-tight cursor-pointer inline"
                             value={name}
                             size={name.length || 1}
                             autoFocus

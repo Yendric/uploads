@@ -1,12 +1,15 @@
-// @ts-nocheck
-
+import type { ResolvedComponent } from "@inertiajs/react";
 import Layout from "./components/layout";
 
 export function resolveRoutes(name: string) {
-    const pages = import.meta.glob("./app/**/*.tsx", { eager: true });
+    const pages = import.meta.glob<{ default: ResolvedComponent }>(
+        "./app/**/*.tsx",
+        { eager: true },
+    );
     const page = pages[`./app/${name}.tsx`];
-    page.default.layout =
-        page.default.layout || ((page) => <Layout children={page} />);
+    if (!page) throw new Error(`Pagina niet gevonden: ${name}`);
+
+    page.default.layout = page.default.layout || [Layout];
 
     return page;
 }

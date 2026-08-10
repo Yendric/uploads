@@ -9,7 +9,7 @@ import { useSwipeable } from "react-swipeable";
 import { Toaster } from "./ui/toaster";
 
 interface LayoutProps {
-    children: React.ReactElement;
+    children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {

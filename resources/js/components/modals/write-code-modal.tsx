@@ -1,5 +1,7 @@
-import { useForm } from "@inertiajs/react";
+import { toast } from "@/hooks/use-toast";
+import { router } from "@inertiajs/react";
 import CodeMirror, { type Extension } from "@uiw/react-codemirror";
+import axios from "axios";
 import { useEffect, useState, type FormEvent } from "react";
 import { Input, Select } from "../form";
 import { Button } from "../ui/button";
@@ -26,20 +28,37 @@ export default function WriteCodeModal({ open, onClose }: Props) {
     );
     const [extensions, setExtensions] = useState<Extension[]>();
 
-    const { data, setData, post, errors } = useForm<{
-        file?: File;
-    }>();
+    const [saving, setSaving] = useState(false);
 
-    function submit(e: FormEvent<HTMLFormElement>) {
+    async function submit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         const file = new File([code], fileName, { type: "text/plain" });
 
-        data.file = file;
-        setData({ file });
+        setSaving(true);
+        try {
+            const presign = await axios.post<{ url: string; uuid: string }>(
+                route("file.presign"),
+            );
+            await axios.put(presign.data.url, file);
 
-        post(route("file.upload"));
-        onClose();
+            router.post(route("file.complete"), {
+                uuid: presign.data.uuid,
+                name: fileName,
+                mime: "text/plain",
+            });
+
+            onClose();
+        } catch {
+            toast({
+                title: "Opslaan mislukt",
+                description:
+                    "Er is iets misgegaan bij het opslaan van het bestand. Probeer het opnieuw.",
+                variant: "destructive",
+            });
+        } finally {
+            setSaving(false);
+        }
     }
 
     useEffect(() => {
@@ -53,7 +72,7 @@ export default function WriteCodeModal({ open, onClose }: Props) {
     return (
         <>
             <Dialog open={open} onOpenChange={onClose}>
-                <DialogContent className="max-h-3/4 max-w-screen-2xl">
+                <DialogContent className="max-h-3/4 max-w-(--breakpoint-2xl)">
                     <DialogHeader>
                         <DialogTitle>Code schrijven</DialogTitle>
                     </DialogHeader>
@@ -78,17 +97,18 @@ export default function WriteCodeModal({ open, onClose }: Props) {
                         extensions={extensions}
                         onChange={(code) => setCode(code)}
                     />
-                    {errors.file && (
-                        <p className="text-sm font-medium text-destructive">
-                            {errors.file}
-                        </p>
-                    )}
                     <DialogFooter>
-                        <Button onClick={onClose} variant="outline">
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                            disabled={saving}
+                        >
                             Annuleer
                         </Button>
                         <form onSubmit={submit}>
-                            <Button type="submit">Uploaden</Button>
+                            <Button type="submit" disabled={saving}>
+                                {saving ? "Opslaan..." : "Uploaden"}
+                            </Button>
                         </form>
                     </DialogFooter>
                 </DialogContent>

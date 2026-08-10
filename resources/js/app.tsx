@@ -7,6 +7,7 @@ createInertiaApp({
     title: (title) =>
         title ? `${title} - Yendric uploads` : "Yendric uploads",
     setup({ el, App, props }) {
+        if (!el) throw new Error("Inertia root element niet gevonden");
         createRoot(el).render(<App {...props} />);
     },
 });
