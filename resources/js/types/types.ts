@@ -5,7 +5,8 @@ export type FolderResourceType = {
 };
 export type FileResourceType = {
     name: string;
-    size: number;
+    size: string;
+    size_bytes: number;
     date: string;
     folders: number[];
     type: FileType;

@@ -22,32 +22,22 @@ export function File(props: MediaLibraryImageProps) {
     useEffect(() => {
         if (props.file.type != FileType.Text) return;
 
+        if (props.file.size_bytes > MAX_TEXT_PREVIEW_BYTES) {
+            setPreview({ state: "too-large" });
+            return;
+        }
+
         const controller = new AbortController();
 
-        (async () => {
-            const response = await fetch(props.file.url, {
-                redirect: "follow",
-                signal: controller.signal,
+        fetch(props.file.url, { redirect: "follow", signal: controller.signal })
+            .then((response) => response.text())
+            .then((text) => setPreview({ state: "ready", code: text }))
+            .catch(() => {
+                /* aborted or network error: no preview */
             });
-
-            const size = Number(response.headers.get("content-length") ?? 0);
-            if (size > MAX_TEXT_PREVIEW_BYTES) {
-                setPreview({ state: "too-large" });
-                controller.abort();
-                return;
-            }
-
-            const text = await response.text();
-            setPreview({
-                state: "ready",
-                code: text.slice(0, MAX_TEXT_PREVIEW_BYTES),
-            });
-        })().catch(() => {
-            /* aborted or network error: no preview */
-        });
 
         return () => controller.abort();
-    }, [props.file.url, props.file.type]);
+    }, [props.file.url, props.file.type, props.file.size_bytes]);
 
     return (
         <>
