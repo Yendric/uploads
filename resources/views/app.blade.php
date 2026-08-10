@@ -10,7 +10,7 @@
     Deze website is ontwikkeld door Yendric Van Roey
             (https://yendric.be)
 -->
-<html lang="nl">
+<html lang="nl" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -23,7 +23,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
     @inertiaHead
   </head>
-  <body class="dark">
+  <body>
     @inertia
   </body>
 </html>
