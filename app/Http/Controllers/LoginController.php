@@ -16,7 +16,9 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        return Inertia::render('auth/login');
+        return Inertia::render('auth/login', [
+            'csrfToken' => csrf_token(),
+        ]);
     }
 
     public function login(): RedirectResponse|Response
@@ -33,7 +35,7 @@ class LoginController extends Controller
             return redirect()->intended('/');
         }
 
-        return back()->withErrors([
+        return back(fallback: route('login'))->withErrors([
             'email' => 'Email of wachtwoord incorrect.',
             'password' => 'Email of wachtwoord incorrect.',
         ]);
