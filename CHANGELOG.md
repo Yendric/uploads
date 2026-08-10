@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.0](https://github.com/Yendric/uploads/compare/v1.0.1...v1.1.0) (2026-08-10)
+
+
+### Features
+
+* rework sidebar layout and show app version ([46db458](https://github.com/Yendric/uploads/commit/46db4582841e0d1fdcb72bbe9f433988031a6119))
+
+
+### Bug Fixes
+
+* file page overflowing viewport height ([dc47dd5](https://github.com/Yendric/uploads/commit/dc47dd5a01110195df2e1a6cf2f333cc7d49a183))
+* login with autofilled credentials ([83f6a21](https://github.com/Yendric/uploads/commit/83f6a2118b74878f7b05d398710be67b2a828688))
+* store correct content type on uploaded s3 objects ([60718d4](https://github.com/Yendric/uploads/commit/60718d4f86b6218530f750f69c8907c922614624))
+* use stored file size for text preview limit ([272dade](https://github.com/Yendric/uploads/commit/272dade94e623306a388ed02d399e0c036b5c617))
+* useless int cast flagged by phpstan ([6a56bbb](https://github.com/Yendric/uploads/commit/6a56bbbfd07be62eaa91ab2923eb6071e2b1ee6b))
+
+
+### Performance Improvements
+
+* stream s3 reads instead of buffering whole objects ([20711fc](https://github.com/Yendric/uploads/commit/20711fc26f64092f4f8c1a79f089b451cb1d400c))
+
 ## [1.0.1](https://github.com/Yendric/uploads/compare/v1.0.0...v1.0.1) (2026-08-10)
 
 
