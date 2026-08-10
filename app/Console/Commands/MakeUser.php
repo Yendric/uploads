@@ -11,7 +11,7 @@ class MakeUser extends Command
     /** @var string */
     protected $signature = 'make:user';
 
-    /** @var string|null */
+    /** @var string */
     protected $description = 'Maakt een gebruiker aan';
 
     /** @return void */

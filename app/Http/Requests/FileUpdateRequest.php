@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Folder;
 use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +25,7 @@ class FileUpdateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,7 +35,7 @@ class FileUpdateRequest extends FormRequest
             'folders.*' => [
                 function (string $attribute, string $value, Closure $fail) {
                     $userId = auth()->id();
-                    $folderExists = \App\Models\Folder::where('id', $value)
+                    $folderExists = Folder::where('id', $value)
                         ->where('user_id', $userId)
                         ->exists();
 

@@ -12,7 +12,7 @@ class Folder extends Model
     use HasUuids;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<File, $this>
+     * @return BelongsToMany<File, $this>
      */
     public function files(): BelongsToMany
     {
@@ -20,7 +20,7 @@ class Folder extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

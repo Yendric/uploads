@@ -21,7 +21,9 @@ interface Props {
 export default function WriteCodeModal({ open, onClose }: Props) {
     const [code, setCode] = useState<string>("");
     const [fileName, setFileName] = useState<string>("code.txt");
-    const [lang, setLang] = useState<keyof typeof langs>("javascript");
+    const [lang, setLang] = useState<keyof typeof langs>(
+        "javascript" as keyof typeof langs,
+    );
     const [extensions, setExtensions] = useState<Extension[]>();
 
     const { data, setData, post, errors } = useForm<{

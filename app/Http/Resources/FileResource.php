@@ -2,19 +2,21 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\FileType;
+use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * @mixin \App\Models\File
+ * @mixin File
  */
 class FileResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @return array<string, string|int|null|\App\Enums\FileType>
+     * @return array<string, string|int|null|FileType>
      */
     #[\Override]
     public function toArray(Request $request): array

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FileType;
+use Database\Factories\FileFactory;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Support\Number;
 
 class File extends Model
 {
-    /** @use HasFactory<\Database\Factories\FileFactory> */
+    /** @use HasFactory<FileFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -30,7 +31,7 @@ class File extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Folder, $this>
+     * @return BelongsToMany<Folder, $this>
      */
     public function folders(): BelongsToMany
     {
@@ -38,7 +39,7 @@ class File extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

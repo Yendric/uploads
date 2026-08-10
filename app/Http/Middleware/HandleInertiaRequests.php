@@ -41,7 +41,6 @@ class HandleInertiaRequests extends Middleware
     {
         $ziggy = new Ziggy(url: $request->url());
 
-        /** @phpstan-ignore-next-line */
         return array_merge(parent::share($request), [
             'ziggy' => $ziggy->toArray(),
             'folders' => Auth::user()?->folders()->get() ?? [],

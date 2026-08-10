@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\File;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\File>
+ * @extends Factory<File>
  */
 class FileFactory extends Factory
 {
