@@ -9,7 +9,6 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Form, Head } from "@inertiajs/react";
-import { Label } from "@radix-ui/react-label";
 import { type ComponentType } from "react";
 
 function Login() {
@@ -27,28 +26,27 @@ function Login() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                            <div className="grid gap-2">
-                                <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    error={errors.email}
-                                    placeholder="voorbeeld@domein.be"
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">Wachtwoord</Label>
-                                <Input
-                                    error={errors.password}
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                />
-                            </div>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                label="E-mail"
+                                autoComplete="email"
+                                error={errors.email}
+                                placeholder="voorbeeld@domein.be"
+                                className="grid gap-2"
+                                required
+                            />
+                            <Input
+                                error={errors.password}
+                                id="password"
+                                name="password"
+                                type="password"
+                                label="Wachtwoord"
+                                autoComplete="current-password"
+                                className="grid gap-2"
+                                required
+                            />
                         </CardContent>
                         <CardFooter>
                             <Button

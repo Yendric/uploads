@@ -51,42 +51,38 @@ export default function Layout({ children }: LayoutProps) {
 
     return (
         <div {...handlers}>
-            <div className="h-full border-t bg-background">
-                <div className={`grid ${isAuth && "lg:grid-cols-5"}`}>
-                    {isAuth && (
-                        <>
-                            <Sidebar className="hidden lg:block sticky top-0 left-0" />
+            <div className="flex min-h-screen bg-background">
+                {isAuth && (
+                    <>
+                        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r lg:block">
+                            <Sidebar />
+                        </aside>
 
-                            <div className="lg:hidden">
-                                <div
-                                    className={`fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300 ${
-                                        mobileSidebarOpen
-                                            ? "opacity-100"
-                                            : "opacity-0 pointer-events-none"
-                                    }`}
-                                    onClick={() => setMobileSidebarOpen(false)}
-                                />
+                        <div className="lg:hidden">
+                            <div
+                                className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
+                                    mobileSidebarOpen
+                                        ? "opacity-100"
+                                        : "opacity-0 pointer-events-none"
+                                }`}
+                                onClick={() => setMobileSidebarOpen(false)}
+                            />
 
-                                <div
-                                    className={`fixed inset-y-0 left-0 z-50 w-64 bg-black shadow-lg transform transition-transform duration-300 ${
-                                        mobileSidebarOpen
-                                            ? "translate-x-0"
-                                            : "-translate-x-full"
-                                    }`}
-                                >
-                                    <div className="p-4">
-                                        <Sidebar />
-                                    </div>
-                                </div>
+                            <div
+                                className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r bg-background shadow-lg transition-transform duration-300 ${
+                                    mobileSidebarOpen
+                                        ? "translate-x-0"
+                                        : "-translate-x-full"
+                                }`}
+                            >
+                                <Sidebar />
                             </div>
-                        </>
-                    )}
-                    <div className="col-span-3 lg:col-span-4 lg:border-l">
-                        <div className="h-full px-4 py-6 lg:px-8">
-                            {children}
                         </div>
-                    </div>
-                </div>
+                    </>
+                )}
+                <main className="min-w-0 flex-1 px-4 py-6 lg:px-8">
+                    {children}
+                </main>
             </div>
             <Toaster />
             <ShowFlash />

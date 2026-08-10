@@ -32,6 +32,9 @@ RUN pnpm run build
 
 FROM base AS final
 
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 COPY --from=frontend-builder /app/public /var/www/html/public
 
 USER root

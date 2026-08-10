@@ -1,11 +1,12 @@
 import { Input } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Head, useForm, usePage } from "@inertiajs/react";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/components/ui/separator";
 import type { FormEvent } from "react";
 
 export default function AccountEdit() {
-    const user = usePage().props.auth.user;
+    const { auth, appVersion } = usePage().props;
+    const user = auth.user;
     const { data, setData, errors, put, processing } = useForm<{
         name: string;
         email: string;
@@ -70,6 +71,11 @@ export default function AccountEdit() {
                         </Button>
                     </div>
                 </form>
+
+                <Separator className="my-4" />
+                <p className="text-sm text-muted-foreground">
+                    Applicatieversie: {appVersion}
+                </p>
             </div>
         </>
     );

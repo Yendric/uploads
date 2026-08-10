@@ -51,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => Auth::user(),
             ],
+            'appVersion' => config('app.version'),
         ]);
     }
 }
