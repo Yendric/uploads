@@ -68,7 +68,7 @@ return [
     'type_replacements' => [
         DateTime::class => 'string',
         DateTimeImmutable::class => 'string',
-            // CarbonImmutable::class => 'string',
+        // CarbonImmutable::class => 'string',
         Carbon::class => 'string',
     ],
 

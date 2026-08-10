@@ -48,7 +48,7 @@ return [
         'page_paths' => [
 
             resource_path('js/app'),
-            "resources/js/app" # for laravel vscode extension
+            'resources/js/app', // for laravel vscode extension
 
         ],
 
