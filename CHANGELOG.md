@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Yendric/uploads/compare/v1.1.0...v1.1.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* login requiring two presses with autofilled credentials ([39c3cab](https://github.com/Yendric/uploads/commit/39c3cabbfcb63e121b3dc0df53e4e5ffb65555ab))
+
 ## [1.1.0](https://github.com/Yendric/uploads/compare/v1.0.1...v1.1.0) (2026-08-10)
 
 
