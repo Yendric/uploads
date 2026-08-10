@@ -1,13 +1,10 @@
 <?php
 
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @mixin \App\Models\File
@@ -17,7 +14,6 @@ class FileResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request
      * @return array<string, string|int|null|\App\Enums\FileType>
      */
     #[\Override]

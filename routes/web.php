@@ -1,16 +1,16 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\FileController;
 use App\Models\File;
 use App\Models\Folder;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'page'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 Route::delete('/login', [LoginController::class, 'logout']);
 
 Route::middleware(Authenticate::class)->group(function () {
@@ -49,7 +49,6 @@ Route::middleware(Authenticate::class)->group(function () {
             Route::post('/complete', [FileController::class, 'completeUpload'])
                 ->name('complete')
                 ->can('create', File::class);
-
 
             Route::put('/{file}', [FileController::class, 'update'])->name('update')->can('update', 'file');
             Route::delete('/{file}', [FileController::class, 'destroy'])

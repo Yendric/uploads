@@ -6,15 +6,11 @@ use App\Http\Requests\FolderStoreRequest;
 use App\Http\Resources\FileResource;
 use App\Models\Folder;
 use Auth;
-use DateTime;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Response;
 use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use ZipArchive;
-use Illuminate\Support\Str;
+use Inertia\Response;
 use ZipStream\ZipStream;
 
 class FolderController extends Controller
@@ -43,8 +39,8 @@ class FolderController extends Controller
     {
         return Inertia::render('folder/show', [
             'folder' => $folder,
-            'files' => FileResource::collection($folder->files()->paginate()),
-            'mediaOnly' => $folder->files->count() === $folder->files()->mediaFiles()->count()
+            'files' => FileResource::collection($folder->files()->paginate(12)),
+            'mediaOnly' => $folder->files()->count() === $folder->files()->mediaFiles()->count(),
         ]);
     }
 
@@ -55,23 +51,36 @@ class FolderController extends Controller
         return redirect()->back()->with('success', 'Map succesvol bijgewerkt');
     }
 
-    public function zip(Folder $folder): ?RedirectResponse
+    public function zip(Folder $folder): void
     {
         $zip = new ZipStream(
-            outputName: $folder->name . '.zip',
+            outputName: $folder->name.'.zip',
             sendHttpHeaders: true
         );
 
-        foreach ($folder->files as $file) {
+        /** @var array<string, int> $nameCounts */
+        $nameCounts = [];
+
+        foreach ($folder->files()->get() as $file) {
             $stream = Storage::readStream($file->path());
             if (is_null($stream)) {
-                return redirect()->back()->with('error', 'Er is iets misgegaan bij het zippen van de map');
+                // don't send corrupt file
+                report(new \RuntimeException("Kon {$file->path()} niet lezen bij het zippen van map {$folder->uuid}"));
+
+                continue;
             }
-            $zip->addFileFromStream($file->name, $stream);
+
+            $name = $file->name;
+            $nameCounts[$name] = ($nameCounts[$name] ?? 0) + 1;
+            if ($nameCounts[$name] > 1) {
+                $info = pathinfo($name);
+                $name = $info['filename'].' ('.($nameCounts[$name] - 1).')'
+                    .(isset($info['extension']) ? '.'.$info['extension'] : '');
+            }
+
+            $zip->addFileFromStream($name, $stream);
         }
 
         $zip->finish();
-
-        return null;
     }
 }

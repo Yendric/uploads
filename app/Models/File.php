@@ -2,22 +2,32 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
+use App\Enums\FileType;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use App\Enums\FileType;
 use Illuminate\Support\Number;
 
 class File extends Model
 {
+    /** @use HasFactory<\Database\Factories\FileFactory> */
+    use HasFactory;
+
     use HasUuids;
 
     protected $with = ['folders'];
+
+    #[\Override]
+    protected static function booted(): void
+    {
+        static::deleting(function (File $file) {
+            Storage::delete($file->path());
+        });
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Folder, $this>
@@ -40,16 +50,14 @@ class File extends Model
         return Number::fileSize($this->size);
     }
 
-
     public function date(): string
     {
-        return $this->created_at?->format('d-m-Y H:i') ?? "Onbekend";
+        return $this->created_at?->format('d-m-Y H:i') ?? 'Onbekend';
     }
-
 
     public function path(): string
     {
-        return $this->uuid . '/' . $this->name;
+        return $this->uuid.'/'.$this->name;
     }
 
     public function type(): FileType
@@ -59,14 +67,18 @@ class File extends Model
 
     public function scopeMediaFiles(Builder $query): void
     {
-        $query->where('mime_type', 'like', '%image%')
-            ->orWhere('mime_type', 'like', '%video%');
+        $query->where(function (Builder $query) {
+            $query->where('mime_type', 'like', '%image%')
+                ->orWhere('mime_type', 'like', '%video%');
+        });
     }
 
     public function scopeCodeFiles(Builder $query): void
     {
-        $query->where('mime_type', 'like', '%text%')
-            ->orWhere('mime_type', 'like', '%script%');
+        $query->where(function (Builder $query) {
+            $query->where('mime_type', 'like', '%text%')
+                ->orWhere('mime_type', 'like', '%script%');
+        });
     }
 
     /**

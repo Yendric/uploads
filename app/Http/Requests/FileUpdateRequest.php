@@ -28,7 +28,7 @@ class FileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9._\-\s]+$/',
+            'name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9._\-\s]+$/', 'not_regex:/^[.\s]+$/'],
             'folders' => 'nullable|array',
             'folders.*' => [
                 function (string $attribute, string $value, Closure $fail) {
@@ -37,11 +37,11 @@ class FileUpdateRequest extends FormRequest
                         ->where('user_id', $userId)
                         ->exists();
 
-                    if (!$folderExists) {
-                        $fail("Je kan enkel mappen van jezelf toevoegen.");
+                    if (! $folderExists) {
+                        $fail('Je kan enkel mappen van jezelf toevoegen.');
                     }
                 },
-            ]
+            ],
         ];
     }
 }

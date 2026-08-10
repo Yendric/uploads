@@ -15,9 +15,7 @@ class AppServiceProvider extends ServiceProvider
     #[\Override]
     public function register(): void
     {
-        if (App::environment('production') === true) {
-            $this->app['request']->server->set('HTTPS', true);
-        }
+        //
     }
 
     /**
@@ -25,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (App::environment('production') === true) {
+            URL::forceScheme('https');
+        }
+
         Model::preventLazyLoading();
         Model::unguard();
     }

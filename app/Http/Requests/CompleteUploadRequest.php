@@ -23,8 +23,9 @@ class CompleteUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'uuid' => ['required', 'string'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9._\-\s]+$/', 'not_regex:/^[.\s]+$/'],
+            'uuid' => ['required', 'uuid'],
+            'mime' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

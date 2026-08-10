@@ -26,31 +26,29 @@ class Import extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('Importing files...');
 
         $user = User::first();
         assert($user !== null);
-        $files = Storage::disk("local")->listContents('var/www/upload.yendric.be/uploads')->toArray();
-
+        $files = Storage::disk('local')->listContents('var/www/upload.yendric.be/uploads')->toArray();
 
         foreach ($files as $file) {
-            echo $file->path() . PHP_EOL;
+            echo $file->path().PHP_EOL;
 
-            $lastModified = Storage::disk("local")->lastModified(strval($file['path']));
+            $lastModified = Storage::disk('local')->lastModified($file->path());
             $dbfile = $user->files()->create([
-                'name' => basename(strval($file->path())),
-                'mime_type' => Storage::disk("local")->mimeType(strval($file['path'])),
+                'name' => basename($file->path()),
+                'mime_type' => Storage::disk('local')->mimeType($file->path()),
                 'created_at' => new Carbon($lastModified),
                 'updated_at' => new Carbon($lastModified),
             ]);
 
-            $contents = Storage::disk("local")->read(strval($file['path']));
+            $contents = Storage::disk('local')->read($file->path());
 
-            Storage::put(strval($dbfile->uuid) . '/' . basename(strval($file->path())), $contents);
+            Storage::put(strval($dbfile->uuid).'/'.basename($file->path()), $contents);
         }
-
 
         $this->info('Files imported');
     }

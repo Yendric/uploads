@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\{User, File};
-use Carbon\Carbon;
+use App\Models\File;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,27 +26,26 @@ class ImportSizes extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('Importing files...');
 
         $user = User::first();
         assert($user !== null);
-        $files = Storage::disk("local")->listContents('var/www/upload.yendric.be/uploads')->toArray();
-
+        $files = Storage::disk('local')->listContents('var/www/upload.yendric.be/uploads')->toArray();
 
         foreach ($files as $file) {
-            echo $file->path() . PHP_EOL;
+            echo $file->path().PHP_EOL;
 
-            $size = Storage::disk("local")->size(strval($file['path']));
-            $file = File::firstWhere("name", basename(strval($file->path())));
+            $size = Storage::disk('local')->size($file->path());
+            $file = File::firstWhere('name', basename($file->path()));
 
-            if (is_null($file))
-                throw new \Exception("File not found");
+            if (is_null($file)) {
+                throw new \Exception('File not found');
+            }
             $file->size = $size;
             $file->save();
         }
-
 
         $this->info('Files imported');
     }

@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CompleteUploadRequest;
 use App\Http\Requests\FileUpdateRequest;
-use App\Http\Requests\FileUploadRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +26,7 @@ class FileController extends Controller
                     ->latest()
                     ->mediaFiles()
                     ->paginate(12)
-            )
+            ),
         ]);
     }
 
@@ -40,7 +38,7 @@ class FileController extends Controller
                     ->latest()
                     ->codeFiles()
                     ->paginate(12)
-            )
+            ),
         ]);
     }
 
@@ -53,9 +51,9 @@ class FileController extends Controller
         /** @var ?string */
         $mime = $request->input('mime');
 
-        $tmpKey = 'tmp/' . $uuid;
+        $tmpKey = 'tmp/'.$uuid;
 
-        if (!Storage::exists($tmpKey)) {
+        if (! Storage::exists($tmpKey)) {
             return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand (Upload niet gevonden).');
         }
 
@@ -63,7 +61,7 @@ class FileController extends Controller
 
         $file = Auth::user()?->files()->create([
             'name' => $name,
-            'mime_type' => $mime ?? "text/plain",
+            'mime_type' => $mime ?? 'text/plain',
             'size' => $size,
         ]);
 
@@ -71,7 +69,7 @@ class FileController extends Controller
             return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
         }
 
-        Storage::move($tmpKey, strval($file->uuid) . '/' . $name);
+        Storage::move($tmpKey, strval($file->uuid).'/'.$name);
 
         return redirect()->to(route('file.show', $file->uuid))->with(['success' => 'Bestand succesvol geüpload.']);
     }
@@ -80,26 +78,25 @@ class FileController extends Controller
     {
         $uuid = Str::uuid();
 
-        $tmpKey = 'tmp/' . $uuid;
+        $tmpKey = 'tmp/'.$uuid;
 
         /** @phpstan-ignore-next-line */
         $url = Storage::temporaryUploadUrl(
             $tmpKey,
             now()->addMinutes(30)
-        )["url"];
-
+        )['url'];
 
         return response()->json([
             'url' => $url,
             'uuid' => $uuid,
-            'expires_in' => 30 * 60
+            'expires_in' => 30 * 60,
         ]);
     }
 
     public function all(): Response
     {
         return Inertia::render('files/index', [
-            'files' => FileResource::collection(Auth::user()?->files()->latest()->paginate(12))
+            'files' => FileResource::collection(Auth::user()?->files()->latest()->paginate(12)),
         ]);
     }
 
@@ -121,26 +118,41 @@ class FileController extends Controller
         ]);
     }
 
-    public function download(Request $request, File $file): StreamedResponse
+    public function download(Request $request, File $file): StreamedResponse|RedirectResponse
     {
+        // s3 can serve files directly, so they don't have to go through php
+        if (config('filesystems.default') === 's3') {
+            return redirect()->away(Storage::temporaryUrl(
+                $file->path(),
+                now()->addMinutes(5),
+                ['ResponseContentDisposition' => 'attachment; filename="'.$file->name.'"']
+            ));
+        }
+
         return Storage::download($file->path());
     }
 
     public function update(FileUpdateRequest $request, File $file): RedirectResponse
     {
-        if (isset($request->name)) {
+        if (isset($request->name) && $request->name !== $file->name) {
             $oldPath = $file->path();
             $file->name = $request->name;
-            Storage::move($oldPath, $file->path());
+
+            try {
+                Storage::move($oldPath, $file->path());
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()->back()->with('error', 'Er is iets misgegaan bij het hernoemen van het bestand.');
+            }
+
+            $file->save();
         }
 
         if (isset($request->folders)) {
             $file->folders()->sync($request->folders);
         }
 
-        $file->save();
-
         return redirect()->back()->with(['success' => 'Bestand succesvol aangepast.']);
     }
 }
-
