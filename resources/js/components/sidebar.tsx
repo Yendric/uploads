@@ -33,9 +33,12 @@ export default function Sidebar({ className }: { className?: string }) {
     return (
         <div className={cn("flex h-full flex-col", className)}>
             <div className="px-3 py-4">
-                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-                    Uploads
-                </h2>
+                <div className="mb-2 flex items-center justify-between px-4">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                        Uploads
+                    </h2>
+                    <ThemeToggle />
+                </div>
                 <div className="space-y-1">
                     <NavItem
                         href={route("media")}
@@ -88,7 +91,6 @@ export default function Sidebar({ className }: { className?: string }) {
             </div>
             <div className="border-t px-3 py-3">
                 <div className="space-y-1">
-                    <ThemeToggle />
                     <NavItem
                         href={route("account.edit")}
                         active={route().current("account.edit")}

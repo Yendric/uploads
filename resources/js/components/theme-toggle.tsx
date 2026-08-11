@@ -15,13 +15,12 @@ export default function ThemeToggle() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start">
-                    <SunIcon className="mr-2 h-4 w-4 dark:hidden" />
-                    <MoonIcon className="mr-2 hidden h-4 w-4 dark:block" />
-                    Thema
+                <Button variant="ghost" size="icon" aria-label="Thema wisselen">
+                    <SunIcon className="h-4 w-4 dark:hidden" />
+                    <MoonIcon className="hidden h-4 w-4 dark:block" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="end">
                 <DropdownMenuRadioGroup
                     value={theme}
                     onValueChange={(value) => setTheme(value as Theme)}
