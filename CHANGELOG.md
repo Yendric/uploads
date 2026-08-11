@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/Yendric/uploads/compare/v1.4.0...v1.5.0) (2026-08-11)
+
+
+### Features
+
+* light/dark/system theme toggle ([57ce3d6](https://github.com/Yendric/uploads/commit/57ce3d6f30e9c64bdc50bd7403ff806aa9682ff8))
+* thumbnails for images and videos ([936227b](https://github.com/Yendric/uploads/commit/936227b56df6d23403a3e0c4f44a8f1e8fc30ef2))
+
 ## [1.4.0](https://github.com/Yendric/uploads/compare/v1.3.0...v1.4.0) (2026-08-11)
 
 
