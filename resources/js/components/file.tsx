@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { type FileResourceType, FileType } from "@/types/types";
 import { useEffect, useState } from "react";
 import AutoHighlight, { getFileExtension } from "./highlight";
@@ -16,6 +17,44 @@ type TextPreview =
     | { state: "loading" }
     | { state: "too-large" }
     | { state: "ready"; code: string };
+
+function PreviewImage({
+    src,
+    alt,
+    className,
+}: {
+    src: string;
+    alt: string;
+    className?: string;
+}) {
+    const [loaded, setLoaded] = useState(false);
+
+    return (
+        <div
+            className={cn(
+                "overflow-hidden rounded-md bg-muted",
+                !loaded && "animate-pulse",
+            )}
+        >
+            <img
+                className={cn(
+                    className,
+                    "transition-opacity duration-300",
+                    !loaded && "opacity-0",
+                )}
+                src={src}
+                alt={alt}
+                loading="lazy"
+                decoding="async"
+                // cached images can already be complete before onLoad is attached
+                ref={(img) => {
+                    if (img?.complete) setLoaded(true);
+                }}
+                onLoad={() => setLoaded(true)}
+            />
+        </div>
+    );
+}
 
 export function File(props: MediaLibraryImageProps) {
     const [preview, setPreview] = useState<TextPreview>({ state: "loading" });
@@ -43,25 +82,17 @@ export function File(props: MediaLibraryImageProps) {
     return (
         <>
             {props.thumbnail && props.file.thumbnail_url ? (
-                <div className="overflow-hidden rounded-md">
-                    <img
-                        className={props.className}
-                        src={props.file.thumbnail_url}
-                        alt={props.file.name}
-                        loading="lazy"
-                        decoding="async"
-                    />
-                </div>
+                <PreviewImage
+                    className={props.className}
+                    src={props.file.thumbnail_url}
+                    alt={props.file.name}
+                />
             ) : props.file.type == FileType.Image ? (
-                <div className="overflow-hidden rounded-md">
-                    <img
-                        className={props.className}
-                        src={props.file.url}
-                        alt={props.file.name}
-                        loading="lazy"
-                        decoding="async"
-                    />
-                </div>
+                <PreviewImage
+                    className={props.className}
+                    src={props.file.url}
+                    alt={props.file.name}
+                />
             ) : props.file.type == FileType.Video ? (
                 <div className="overflow-hidden rounded-md">
                     <video
@@ -99,7 +130,13 @@ export function File(props: MediaLibraryImageProps) {
                             ext={getFileExtension(props.file.name)}
                         />
                     </div>
-                ) : preview.state == "loading" ? null : (
+                ) : preview.state == "loading" ? (
+                    <div className="space-y-2.5 rounded-md border-gray border p-4">
+                        <div className="h-3.5 w-3/5 animate-pulse rounded bg-muted" />
+                        <div className="h-3.5 w-4/5 animate-pulse rounded bg-muted" />
+                        <div className="h-3.5 w-2/5 animate-pulse rounded bg-muted" />
+                    </div>
+                ) : (
                     <p className="rounded-md border-gray border p-6 text-center text-sm text-muted-foreground">
                         Dit bestand is te groot om hier te tonen, download het
                         om de inhoud te bekijken.
