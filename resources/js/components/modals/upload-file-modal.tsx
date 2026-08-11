@@ -45,17 +45,39 @@ export default function UploadFileModal({ open, onClose }: Props) {
     const [elapsed, setElapsed] = useState(0);
     const [eta, setEta] = useState(0);
     const [uploading, setUploading] = useState(false);
+    const [fileCounter, setFileCounter] = useState("");
 
     const startTimeRef = useRef<number | null>(null);
     const lastLoadedRef = useRef<number>(0);
     const lastTimeRef = useRef<number>(0);
 
+    function updateProgress(loaded: number, total: number) {
+        const now = Date.now();
+        const timeElapsed = (now - (startTimeRef.current ?? now)) / 1000;
+        setElapsed(timeElapsed);
+
+        setProgress(Math.round((loaded / total) * 100));
+
+        const deltaLoaded = loaded - lastLoadedRef.current;
+        const deltaTime = (now - lastTimeRef.current) / 1000;
+        const currentSpeed = deltaTime > 0 ? deltaLoaded / deltaTime : 0;
+        if (currentSpeed > 0) {
+            setSpeed(currentSpeed);
+            setEta((total - loaded) / currentSpeed);
+        }
+        lastLoadedRef.current = loaded;
+        lastTimeRef.current = now;
+    }
+
     async function submit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const file = pond?.getFile()?.file;
-        if (!file) {
-            return toast({ title: "Gelieve een bestand te kiezen", variant: "destructive" })
-        };
+        const files = (pond?.getFiles() ?? []).map((item) => item.file as File);
+        if (!files.length) {
+            return toast({
+                title: "Gelieve een bestand te kiezen",
+                variant: "destructive",
+            });
+        }
 
         setUploading(true);
         setProgress(0);
@@ -66,56 +88,80 @@ export default function UploadFileModal({ open, onClose }: Props) {
         lastLoadedRef.current = 0;
         lastTimeRef.current = Date.now();
 
+        const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+        let completedBytes = 0;
+        let uploaded = 0;
+
         try {
-            const presign = await axios.post<{ url: string, uuid: string, expires_in: number }>(route('file.presign'));
-            const { url, uuid } = presign.data;
+            for (const [index, file] of files.entries()) {
+                setFileCounter(
+                    files.length > 1 ? `${index + 1}/${files.length}` : "",
+                );
 
-            await axios.put(url, file, {
-                onUploadProgress(p) {
-                    if (p.total && p.loaded) {
-                        const now = Date.now();
-                        const timeElapsed = (now - (startTimeRef.current ?? now)) / 1000;
-                        setElapsed(timeElapsed);
+                const presign = await axios.post<{
+                    url: string;
+                    uuid: string;
+                    expires_in: number;
+                }>(route("file.presign"));
 
-                        const percent = Math.round((p.loaded / p.total) * 100);
-                        setProgress(percent);
-
-                        const deltaLoaded = p.loaded - lastLoadedRef.current;
-                        const deltaTime = (now - lastTimeRef.current) / 1000;
-                        if (deltaTime > 0) {
-                            setSpeed(deltaLoaded / deltaTime);
+                await axios.put(presign.data.url, file, {
+                    onUploadProgress(p) {
+                        if (p.loaded) {
+                            updateProgress(
+                                completedBytes + p.loaded,
+                                totalBytes,
+                            );
                         }
-                        lastLoadedRef.current = p.loaded;
-                        lastTimeRef.current = now;
+                    },
+                });
 
-                        if (p.loaded > 0 && p.total > 0 && (deltaLoaded / deltaTime) > 0) {
-                            setEta((p.total - p.loaded) / (deltaLoaded / deltaTime));
-                        } else {
-                            setEta(0);
-                        }
-                    }
+                // a single upload navigates to the file page
+                if (files.length === 1) {
+                    router.post(route("file.complete"), {
+                        uuid: presign.data.uuid,
+                        name: file.name,
+                        mime: file.type,
+                    });
+
+                    onClose();
+                    return;
                 }
-            });
 
-            router.post(route('file.complete'), {
-                uuid,
-                name: file.name,
-                mime: file.type
-            });
+                await axios.post(
+                    route("file.complete"),
+                    {
+                        uuid: presign.data.uuid,
+                        name: file.name,
+                        mime: file.type,
+                    },
+                    { headers: { Accept: "application/json" } },
+                );
 
+                completedBytes += file.size;
+                uploaded++;
+            }
+
+            toast({ title: `${uploaded} bestanden geüpload.` });
+            router.reload();
             onClose();
         } catch {
             toast({
                 title: "Uploaden mislukt",
-                description: "Er is iets misgegaan bij het uploaden van het bestand. Probeer het opnieuw.",
+                description:
+                    uploaded > 0
+                        ? `${uploaded} van de ${files.length} bestanden zijn geüpload, daarna ging er iets mis. Probeer het opnieuw.`
+                        : "Er is iets misgegaan bij het uploaden van het bestand. Probeer het opnieuw.",
                 variant: "destructive",
             });
+
+            if (uploaded > 0) router.reload();
         } finally {
             setUploading(false);
             setProgress(0);
             setSpeed(0);
             setElapsed(0);
             setEta(0);
+            setFileCounter("");
         }
     }
 
@@ -146,15 +192,14 @@ export default function UploadFileModal({ open, onClose }: Props) {
             <Dialog open={open} onOpenChange={onClose}>
                 <DialogContent className="min-w-fit">
                     <DialogHeader>
-                        <DialogTitle>Bestand uploaden</DialogTitle>
+                        <DialogTitle>Bestanden uploaden</DialogTitle>
                     </DialogHeader>
                     <FilePond
                         ref={(ref) => setPond(ref)}
-                        allowMultiple={false}
+                        allowMultiple={true}
                         credits={false}
-                        maxFiles={1}
                         id="file-upload"
-                        labelIdle="Plaats je bestand of klik hier..."
+                        labelIdle="Plaats je bestanden of klik hier..."
                         disabled={uploading}
                     />
                     {uploading && (
@@ -166,15 +211,16 @@ export default function UploadFileModal({ open, onClose }: Props) {
                                 />
                             </div>
                             <div className="flex justify-between text-sm mb-1">
-                                <span>{progress}%</span>
+                                <span>
+                                    {fileCounter && `${fileCounter} - `}
+                                    {progress}%
+                                </span>
                                 <span>
                                     {speed > 0
                                         ? `${formatBytes(speed)}/s`
                                         : "--/s"}
                                 </span>
-                                <span>
-                                    {formatTime(elapsed)} voorbij
-                                </span>
+                                <span>{formatTime(elapsed)} voorbij</span>
                                 <span>
                                     {progress < 100 && speed > 0
                                         ? `${formatTime(eta)} ETA`
@@ -184,7 +230,11 @@ export default function UploadFileModal({ open, onClose }: Props) {
                         </div>
                     )}
                     <DialogFooter>
-                        <Button onClick={onClose} variant="outline" disabled={uploading}>
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                            disabled={uploading}
+                        >
                             Annuleer
                         </Button>
                         <form onSubmit={submit}>

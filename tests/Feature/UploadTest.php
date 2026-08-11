@@ -107,6 +107,38 @@ class UploadTest extends TestCase
         $this->assertStringContainsString('text', $file->mime_type);
     }
 
+    public function test_complete_upload_returns_json_for_batch_uploads(): void
+    {
+        Storage::fake();
+        $user = User::factory()->create();
+        $uuid = Str::uuid()->toString();
+        Storage::put('tmp/'.$uuid, 'file contents');
+
+        $response = $this->actingAs($user)->postJson(route('file.complete'), [
+            'uuid' => $uuid,
+            'name' => 'photo.jpg',
+            'mime' => 'image/jpeg',
+        ]);
+
+        $file = $user->files()->first();
+        $this->assertNotNull($file);
+        $response->assertOk()->assertJson(['uuid' => (string) $file->uuid]);
+        Storage::assertExists($file->uuid.'/photo.jpg');
+    }
+
+    public function test_complete_upload_returns_json_error_for_missing_upload(): void
+    {
+        Storage::fake();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('file.complete'), [
+            'uuid' => Str::uuid()->toString(),
+            'name' => 'photo.jpg',
+        ])->assertStatus(422);
+
+        $this->assertSame(0, $user->files()->count());
+    }
+
     public function test_presign_requires_authentication(): void
     {
         $this->post(route('file.presign'))->assertRedirect(route('login'));

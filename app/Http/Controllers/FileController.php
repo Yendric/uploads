@@ -50,7 +50,7 @@ class FileController extends Controller
         ]);
     }
 
-    public function completeUpload(CompleteUploadRequest $request): RedirectResponse
+    public function completeUpload(CompleteUploadRequest $request): JsonResponse|RedirectResponse
     {
         /** @var string */
         $uuid = $request->input('uuid');
@@ -62,7 +62,7 @@ class FileController extends Controller
         $tmpKey = 'tmp/'.$uuid;
 
         if (! Storage::exists($tmpKey)) {
-            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand (Upload niet gevonden).');
+            return $this->completeUploadError($request, 'Er is iets misgegaan bij het uploaden van het bestand (Upload niet gevonden).', 422);
         }
 
         $size = Storage::size($tmpKey);
@@ -79,7 +79,7 @@ class FileController extends Controller
         ]);
 
         if (is_null($file)) {
-            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
+            return $this->completeUploadError($request, 'Er is iets misgegaan bij het uploaden van het bestand.', 500);
         }
 
         try {
@@ -91,10 +91,24 @@ class FileController extends Controller
             report($e);
             $file->delete();
 
-            return redirect()->back()->with('error', 'Er is iets misgegaan bij het uploaden van het bestand.');
+            return $this->completeUploadError($request, 'Er is iets misgegaan bij het uploaden van het bestand.', 500);
+        }
+
+        // batch uploads complete each file over json instead of navigating
+        if ($request->expectsJson()) {
+            return response()->json(['uuid' => $file->uuid]);
         }
 
         return redirect()->to(route('file.show', $file->uuid))->with(['success' => 'Bestand succesvol geüpload.']);
+    }
+
+    private function completeUploadError(Request $request, string $message, int $status): JsonResponse|RedirectResponse
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['message' => $message], $status);
+        }
+
+        return redirect()->back()->with('error', $message);
     }
 
     public function presignUpload(): JsonResponse
