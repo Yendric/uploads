@@ -3,9 +3,11 @@ import useIsAuth from "@/hooks/use-is-auth";
 import { Modal } from "@/hooks/use-modal";
 import { toast } from "@/hooks/use-toast";
 import { usePage } from "@inertiajs/react";
+import { MenuIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
+import { Button } from "./ui/button";
 import { Toaster } from "./ui/toaster";
 
 interface LayoutProps {
@@ -36,6 +38,10 @@ export default function Layout({ children }: LayoutProps) {
 
     const isAuth = useIsAuth();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+    // close the mobile sidebar when navigating
+    const { url } = usePage();
+    useEffect(() => setMobileSidebarOpen(false), [url]);
 
     const handlers = useSwipeable({
         onSwipedRight: (eventData) => {
@@ -80,8 +86,25 @@ export default function Layout({ children }: LayoutProps) {
                         </div>
                     </>
                 )}
-                <main className="flex min-w-0 flex-1 flex-col px-4 py-6 lg:px-8">
-                    {children}
+                <main className="flex min-w-0 flex-1 flex-col">
+                    {isAuth && (
+                        <div className="sticky top-0 z-30 flex items-center gap-2 border-b bg-background px-2 py-2 lg:hidden">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Menu openen"
+                                onClick={() => setMobileSidebarOpen(true)}
+                            >
+                                <MenuIcon className="h-5 w-5" />
+                            </Button>
+                            <span className="text-lg font-semibold tracking-tight">
+                                Uploads
+                            </span>
+                        </div>
+                    )}
+                    <div className="flex min-w-0 flex-1 flex-col px-4 py-6 lg:px-8">
+                        {children}
+                    </div>
                 </main>
             </div>
             <Toaster />
