@@ -1,9 +1,12 @@
+import { cn } from "@/lib/utils";
 import { usePage } from "@inertiajs/react";
 import {
     PaginationContent,
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
     Pagination as ShadcnPagination,
 } from "./ui/pagination";
 
@@ -29,9 +32,23 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
     const items = [];
     for (let i = startPage; i <= endPage; ++i) items.push(i);
 
+    if (lastPage <= 1) return null;
+
     return (
         <ShadcnPagination>
             <PaginationContent>
+                <PaginationItem>
+                    <PaginationPrevious
+                        href={pageHref(Math.max(1, currentPage - 1))}
+                        aria-disabled={currentPage === 1}
+                        className={cn(
+                            "[&>span]:hidden sm:[&>span]:inline",
+                            currentPage === 1
+                                ? "pointer-events-none opacity-50"
+                                : "cursor-pointer"
+                        )}
+                    />
+                </PaginationItem>
                 {startPage > 1 && (
                     <>
                         <PaginationItem key={1}>
@@ -73,6 +90,18 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
                         </PaginationItem>
                     </>
                 )}
+                <PaginationItem>
+                    <PaginationNext
+                        href={pageHref(Math.min(lastPage, currentPage + 1))}
+                        aria-disabled={currentPage === lastPage}
+                        className={cn(
+                            "[&>span]:hidden sm:[&>span]:inline",
+                            currentPage === lastPage
+                                ? "pointer-events-none opacity-50"
+                                : "cursor-pointer"
+                        )}
+                    />
+                </PaginationItem>
             </PaginationContent>
         </ShadcnPagination>
     );
