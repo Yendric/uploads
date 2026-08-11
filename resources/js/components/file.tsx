@@ -1,6 +1,6 @@
 import { type FileResourceType, FileType } from "@/types/types";
 import { useEffect, useState } from "react";
-import AutoHighlight from "./highlight";
+import AutoHighlight, { getFileExtension } from "./highlight";
 
 interface MediaLibraryImageProps {
     file: FileResourceType;
@@ -8,8 +8,8 @@ interface MediaLibraryImageProps {
     controls?: boolean;
 }
 
-// files bigger than this are not shown as a text preview
-const MAX_TEXT_PREVIEW_BYTES = 512 * 1024;
+// files bigger than this are not shown as a text preview or editable in the code modal
+export const MAX_TEXT_PREVIEW_BYTES = 2 * 1024 * 1024;
 
 type TextPreview =
     | { state: "loading" }
@@ -102,9 +102,4 @@ export function File(props: MediaLibraryImageProps) {
             )}
         </>
     );
-}
-
-function getFileExtension(filename: string) {
-    const parts = filename.split(".");
-    return parts.length > 1 ? (parts.pop()?.toLowerCase() ?? "") : "";
 }

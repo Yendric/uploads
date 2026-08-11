@@ -1,4 +1,5 @@
-import { File } from "@/components/file";
+import { File, MAX_TEXT_PREVIEW_BYTES } from "@/components/file";
+import WriteCodeModal from "@/components/modals/write-code-modal";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -12,11 +13,20 @@ import { Separator } from "@/components/ui/separator";
 import useIsAuth from "@/hooks/use-is-auth";
 import { useModal } from "@/hooks/use-modal";
 import { toast } from "@/hooks/use-toast";
-import type { FileResourceType, FolderResourceType } from "@/types/types";
+import {
+    type FileResourceType,
+    FileType,
+    type FolderResourceType,
+} from "@/types/types";
 import { Head, router, usePage } from "@inertiajs/react";
 import { ChevronDownIcon, DownloadIcon } from "@radix-ui/react-icons";
-import { PencilIcon, SquareArrowUpRightIcon, TrashIcon } from "lucide-react";
-import { useState } from "react";
+import {
+    CodeIcon,
+    PencilIcon,
+    SquareArrowUpRightIcon,
+    TrashIcon,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import AreYouSure from "../../components/modals/are-you-sure";
 
 export default function FileShow({ file }: { file: FileResourceType }) {
@@ -39,8 +49,14 @@ export default function FileShow({ file }: { file: FileResourceType }) {
         router.put(route("file.update", file.uuid), { folders });
     }
 
+    const { open: openCodeEditor } = useModal(WriteCodeModal, { file });
+
     const [nameEdit, setNameEdit] = useState(false);
     const [name, setName] = useState(file.name);
+
+    // keep the title in sync when the file is renamed elsewhere
+    useEffect(() => setName(file.name), [file.name]);
+
     function updateName() {
         router.put(
             route("file.update", file.uuid),
@@ -54,7 +70,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                     });
                     setName(file.name);
                 },
-            }
+            },
         );
         setNameEdit(false);
     }
@@ -112,7 +128,7 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                                         }
                                         onSelect={(e) => e.preventDefault()}
                                         checked={file.folders.includes(
-                                            folder.id
+                                            folder.id,
                                         )}
                                     >
                                         {folder.name}
@@ -121,6 +137,18 @@ export default function FileShow({ file }: { file: FileResourceType }) {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
+
+                    {isAuth &&
+                        file.type == FileType.Text &&
+                        file.size_bytes <= MAX_TEXT_PREVIEW_BYTES && (
+                            <Button
+                                variant="secondary"
+                                onClick={openCodeEditor}
+                            >
+                                <CodeIcon className="h-4 w-4" />
+                                Bewerken
+                            </Button>
+                        )}
 
                     <a href={route("file.download", file.uuid)} download>
                         <Button variant="secondary">

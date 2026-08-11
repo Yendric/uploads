@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import {
     PaginationContent,
     PaginationEllipsis,
@@ -12,6 +13,15 @@ interface PaginationProps {
 }
 
 export default function Pagination({ lastPage, currentPage }: PaginationProps) {
+    const { url } = usePage();
+
+    // keep other query params (like search) when switching pages
+    function pageHref(page: number) {
+        const params = new URLSearchParams(url.split("?")[1] ?? "");
+        params.set("page", String(page));
+        return `?${params.toString()}`;
+    }
+
     let window_size = currentPage == 1 || currentPage == lastPage ? 2 : 1;
     let startPage = Math.max(1, currentPage - window_size);
     let endPage = Math.min(lastPage, currentPage + window_size);
@@ -26,7 +36,7 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
                     <>
                         <PaginationItem key={1}>
                             <PaginationLink
-                                href={`?page=${1}`}
+                                href={pageHref(1)}
                                 className="cursor-pointer"
                             >
                                 {1}
@@ -40,7 +50,7 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
                 {items.map((i) => (
                     <PaginationItem key={i}>
                         <PaginationLink
-                            href={`?page=${i}`}
+                            href={pageHref(i)}
                             className="cursor-pointer"
                             isActive={i === currentPage}
                         >
@@ -55,7 +65,7 @@ export default function Pagination({ lastPage, currentPage }: PaginationProps) {
                         </PaginationItem>
                         <PaginationItem key={1}>
                             <PaginationLink
-                                href={`?page=${lastPage}`}
+                                href={pageHref(lastPage)}
                                 className="cursor-pointer"
                             >
                                 {lastPage}

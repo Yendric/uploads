@@ -27,7 +27,8 @@ class FileResource extends JsonResource
             'size_bytes' => $this->size,
             'date' => $this->date(),
             'type' => $this->type(),
-            'url' => Storage::url($this->path()),
+            // refetch previews after content changes
+            'url' => Storage::url($this->path()).'?v='.($this->updated_at->timestamp ?? 0),
             'folders' => $this->folders->pluck('id'),
             'id' => $this->id,
             'uuid' => $this->uuid,

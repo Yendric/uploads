@@ -82,6 +82,19 @@ class File extends Model
         });
     }
 
+    public function scopeSearch(Builder $query, string $term): void
+    {
+        $term = trim($term);
+
+        if ($term === '') {
+            return;
+        }
+
+        // escape LIKE wildcards so they match literally
+        $escaped = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term);
+        $query->whereRaw("name like ? escape '!'", ['%'.$escaped.'%']);
+    }
+
     /**
      * @return array<string>
      */

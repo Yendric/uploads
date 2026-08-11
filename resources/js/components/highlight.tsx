@@ -2,7 +2,7 @@ import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import { useEffect, useRef } from "react";
 
-const languageMap = {
+export const languageMap = {
     "1c": "1C",
     "4d": "4D",
     abnf: "ABNF",
@@ -151,6 +151,11 @@ const languageMap = {
     yml: "YAML",
     zig: "Zig",
 };
+
+export function getFileExtension(filename: string) {
+    const parts = filename.split(".");
+    return parts.length > 1 ? (parts.pop()?.toLowerCase() ?? "") : "";
+}
 
 export default function AutoHighlight({
     code,

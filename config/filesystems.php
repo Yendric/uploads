@@ -34,6 +34,8 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
+            // mimic s3 behavior in tests
+            'visibility' => 'public',
             'throw' => false,
         ],
 

@@ -1,6 +1,7 @@
 import MediaCard from "@/components/media-card";
 import UploadFileModal from "@/components/modals/upload-file-modal";
 import Pagination from "@/components/pagination";
+import SearchInput from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +26,7 @@ export default function MediaIndex({ media }: MediaIndexProps) {
     return (
         <>
             <Head title="Media" />
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight">
                         Media
@@ -34,10 +35,13 @@ export default function MediaIndex({ media }: MediaIndexProps) {
                         Afbeeldingen en video's
                     </p>
                 </div>
-                <Button onClick={openFileModal} variant="secondary">
-                    <PlusCircledIcon className=" h-4 w-4" />
-                    Media uploaden
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <SearchInput />
+                    <Button onClick={openFileModal} variant="secondary">
+                        <PlusCircledIcon className=" h-4 w-4" />
+                        Media uploaden
+                    </Button>
+                </div>
             </div>
 
             <Separator className="my-4" />
@@ -46,6 +50,11 @@ export default function MediaIndex({ media }: MediaIndexProps) {
                     <MediaCard key={mediaEntry.id} file={mediaEntry} />
                 ))}
             </div>
+            {media.data.length === 0 && (
+                <p className="py-12 text-center text-sm text-muted-foreground">
+                    Geen resultaten.
+                </p>
+            )}
 
             <Pagination
                 currentPage={media.meta.current_page}

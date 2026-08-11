@@ -4,6 +4,7 @@ import { PlusCircledIcon } from "@radix-ui/react-icons";
 import FileTable from "@/components/file-table";
 import WriteCodeModal from "@/components/modals/write-code-modal";
 import Pagination from "@/components/pagination";
+import SearchInput from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/hooks/use-modal";
@@ -25,16 +26,19 @@ export default function CodeIndex({ files }: FileIndexProps) {
     return (
         <>
             <Head title="Code" />
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-1">
                     <h2 className="text-2xl font-semibold tracking-tight">
                         Code
                     </h2>
                 </div>
-                <Button onClick={writeCodeModal} variant="secondary">
-                    <PlusCircledIcon className="mr-2 h-4 w-4" />
-                    Code schrijven
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <SearchInput />
+                    <Button onClick={writeCodeModal} variant="secondary">
+                        <PlusCircledIcon className="mr-2 h-4 w-4" />
+                        Code schrijven
+                    </Button>
+                </div>
             </div>
 
             <Separator className="my-4" />

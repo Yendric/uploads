@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * @property ?string $name
+ * @property ?string $content
  * @property ?array<int> $folders
  */
 class FileUpdateRequest extends FormRequest
@@ -31,6 +32,7 @@ class FileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9._\-\s]+$/', 'not_regex:/^[.\s]+$/'],
+            'content' => ['nullable', 'string', 'max:2097152'],
             'folders' => 'nullable|array',
             'folders.*' => [
                 function (string $attribute, string $value, Closure $fail) {

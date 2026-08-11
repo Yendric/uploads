@@ -1,4 +1,4 @@
-import { type ComponentType, useState } from "react";
+import { type ComponentType, useEffect, useRef, useState } from "react";
 
 type ModalProps = {
     open: boolean;
@@ -32,14 +32,26 @@ const ModalState = new EventEmitter();
 export function Modal() {
     const [packet, setPacket] = useState<ModalPacket<any> | null>(null);
     const [open, setOpen] = useState(true);
+    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    ModalState.subscribe((p) => setPacket(p));
+    useEffect(() => {
+        ModalState.subscribe((p) => {
+            // a new modal cancels a pending close
+            if (p && closeTimer.current) {
+                clearTimeout(closeTimer.current);
+                closeTimer.current = null;
+            }
+
+            setPacket(p);
+            if (p) setOpen(true);
+        });
+    }, []);
 
     function onClose() {
         setOpen(false);
 
         // Allow for animation to play
-        setTimeout(() => {
+        closeTimer.current = setTimeout(() => {
             ModalState.emit(null);
             setOpen(true);
         }, 500);
@@ -54,7 +66,7 @@ export function Modal() {
 
 export function useModal<P extends ModalProps>(
     component: ComponentType<P>,
-    props: WithoutModalProps<P>
+    props: WithoutModalProps<P>,
 ) {
     const open = () =>
         ModalState.emit({

@@ -16,5 +16,6 @@ declare module "@inertiajs/core" {
             error?: string;
         };
         appVersion: string;
+        search?: string;
     }
 }

@@ -20,27 +20,33 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller
 {
-    public function media(): Response
+    public function media(Request $request): Response
     {
         return Inertia::render('media/index', [
             'media' => FileResource::collection(
                 Auth::user()?->files()
                     ->latest()
                     ->mediaFiles()
+                    ->search($request->string('search')->value())
                     ->paginate(12)
+                    ->withQueryString()
             ),
+            'search' => $request->string('search')->value(),
         ]);
     }
 
-    public function code(): Response
+    public function code(Request $request): Response
     {
         return Inertia::render('code/index', [
             'files' => FileResource::collection(
                 Auth::user()?->files()
                     ->latest()
                     ->codeFiles()
+                    ->search($request->string('search')->value())
                     ->paginate(12)
+                    ->withQueryString()
             ),
+            'search' => $request->string('search')->value(),
         ]);
     }
 
@@ -110,10 +116,17 @@ class FileController extends Controller
         ]);
     }
 
-    public function all(): Response
+    public function all(Request $request): Response
     {
         return Inertia::render('files/index', [
-            'files' => FileResource::collection(Auth::user()?->files()->latest()->paginate(12)),
+            'files' => FileResource::collection(
+                Auth::user()?->files()
+                    ->latest()
+                    ->search($request->string('search')->value())
+                    ->paginate(12)
+                    ->withQueryString()
+            ),
+            'search' => $request->string('search')->value(),
         ]);
     }
 
@@ -202,6 +215,26 @@ class FileController extends Controller
             }
 
             $file->save();
+        }
+
+        if ($request->has('content')) {
+            if ($file->type() !== FileType::Text) {
+                return redirect()->back()->with('error', 'Alleen tekstbestanden kunnen bewerkt worden.');
+            }
+
+            $content = $request->string('content')->value();
+
+            try {
+                Storage::put($file->path(), $content, ['ContentType' => $file->mime_type]);
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()->back()->with('error', 'Er is iets misgegaan bij het opslaan van het bestand.');
+            }
+
+            $file->size = strlen($content);
+            // touch() also bumps updated_at when the size is unchanged, so the url cache-buster changes
+            $file->touch();
         }
 
         if (isset($request->folders)) {
