@@ -6,6 +6,7 @@ interface MediaLibraryImageProps {
     file: FileResourceType;
     className?: string;
     controls?: boolean;
+    thumbnail?: boolean;
 }
 
 // files bigger than this are not shown as a text preview or editable in the code modal
@@ -41,7 +42,17 @@ export function File(props: MediaLibraryImageProps) {
 
     return (
         <>
-            {props.file.type == FileType.Image ? (
+            {props.thumbnail && props.file.thumbnail_url ? (
+                <div className="overflow-hidden rounded-md">
+                    <img
+                        className={props.className}
+                        src={props.file.thumbnail_url}
+                        alt={props.file.name}
+                        loading="lazy"
+                        decoding="async"
+                    />
+                </div>
+            ) : props.file.type == FileType.Image ? (
                 <div className="overflow-hidden rounded-md">
                     <img
                         className={props.className}

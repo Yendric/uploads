@@ -6,6 +6,7 @@ use App\Enums\FileType;
 use App\Http\Requests\CompleteUploadRequest;
 use App\Http\Requests\FileUpdateRequest;
 use App\Http\Resources\FileResource;
+use App\Jobs\GenerateThumbnail;
 use App\Models\File;
 use App\Support\MimeType;
 use Auth;
@@ -93,6 +94,8 @@ class FileController extends Controller
 
             return $this->completeUploadError($request, 'Er is iets misgegaan bij het uploaden van het bestand.', 500);
         }
+
+        GenerateThumbnail::dispatchAfterResponse($file);
 
         // batch uploads complete each file over json instead of navigating
         if ($request->expectsJson()) {

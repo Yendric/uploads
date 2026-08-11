@@ -11,6 +11,7 @@ export type FileResourceType = {
     folders: number[];
     type: FileType;
     url: string;
+    thumbnail_url: string | null;
     id: number;
     uuid: string;
 };

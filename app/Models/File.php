@@ -26,8 +26,17 @@ class File extends Model
     protected static function booted(): void
     {
         static::deleting(function (File $file) {
-            Storage::delete($file->path());
+            Storage::delete([$file->path(), $file->thumbnailPath()]);
         });
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    #[\Override]
+    protected function casts(): array
+    {
+        return ['has_thumbnail' => 'boolean'];
     }
 
     /**
@@ -59,6 +68,11 @@ class File extends Model
     public function path(): string
     {
         return $this->uuid.'/'.$this->name;
+    }
+
+    public function thumbnailPath(): string
+    {
+        return 'thumbs/'.$this->uuid.'.webp';
     }
 
     public function type(): FileType

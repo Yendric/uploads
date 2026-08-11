@@ -44,6 +44,7 @@ export default function MediaCard({ file }: { file: FileResourceType }) {
                     <Link href={route("file.show", file.uuid)}>
                         <File
                             file={file}
+                            thumbnail
                             className="w-full aspect-3/4 object-cover transition-all hover:scale-105 pointer-events-none"
                         />
                     </Link>

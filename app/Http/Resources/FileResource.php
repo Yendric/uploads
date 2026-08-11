@@ -29,6 +29,7 @@ class FileResource extends JsonResource
             'type' => $this->type(),
             // refetch previews after content changes
             'url' => Storage::url($this->path()).'?v='.($this->updated_at->timestamp ?? 0),
+            'thumbnail_url' => $this->has_thumbnail ? Storage::url($this->thumbnailPath()) : null,
             'folders' => $this->folders->pluck('id'),
             'id' => $this->id,
             'uuid' => $this->uuid,
