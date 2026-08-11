@@ -10,9 +10,16 @@
     Deze website is ontwikkeld door Yendric Van Roey
             (https://yendric.be)
 -->
-<html lang="nl" class="dark">
+<html lang="nl">
   <head>
     <meta charset="utf-8" />
+    {{-- see also theme-provider.tsx --}}
+    <script>
+      const theme = localStorage.getItem("theme");
+      if (theme === "dark" || (theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <meta name="author" content="Yendric Van Roey">
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />

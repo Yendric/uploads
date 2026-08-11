@@ -1,3 +1,4 @@
+import ThemeToggle from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModal } from "@/hooks/use-modal";
@@ -87,6 +88,7 @@ export default function Sidebar({ className }: { className?: string }) {
             </div>
             <div className="border-t px-3 py-3">
                 <div className="space-y-1">
+                    <ThemeToggle />
                     <NavItem
                         href={route("account.edit")}
                         active={route().current("account.edit")}
