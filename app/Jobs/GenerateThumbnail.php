@@ -17,6 +17,9 @@ class GenerateThumbnail
 
     private const int MAX_DIMENSION = 640;
 
+    // gd needs ~5 bytes per pixel to decode, which has to fit in memory_limit
+    private const int MAX_PIXELS = 30_000_000;
+
     public function __construct(private readonly File $file) {}
 
     public function handle(): void
@@ -33,7 +36,13 @@ class GenerateThumbnail
                 ? $this->videoFrame($file)
                 : Storage::get($file->path()) ?? '';
 
-            $thumbnail = (new ImageManager(GdDriver::class))
+            $size = getimagesizefromstring($frame);
+            if ($size === false || $size[0] * $size[1] > self::MAX_PIXELS) {
+                return;
+            }
+
+            // animated gifs are split into frames otherwise, all held in memory
+            $thumbnail = (new ImageManager(GdDriver::class, decodeAnimation: false))
                 ->decodeBinary($frame)
                 ->scaleDown(self::MAX_DIMENSION, self::MAX_DIMENSION)
                 ->encode(new WebpEncoder(quality: 75));

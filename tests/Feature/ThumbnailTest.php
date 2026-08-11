@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Gif\Builder;
 use Tests\TestCase;
 
 class ThumbnailTest extends TestCase
@@ -93,6 +94,43 @@ class ThumbnailTest extends TestCase
 
         $this->assertTrue($video->refresh()->has_thumbnail);
         Storage::assertExists($video->thumbnailPath());
+    }
+
+    public function test_animated_gifs_get_a_first_frame_thumbnail(): void
+    {
+        Storage::fake();
+        $gd = imagecreatetruecolor(50, 50);
+        ob_start();
+        imagegif($gd);
+        $frame = (string) ob_get_clean();
+
+        $builder = Builder::canvas(50, 50);
+        foreach (range(1, 3) as $i) {
+            $builder->addFrame($frame, 0.1);
+        }
+
+        $file = File::factory()->create(['name' => 'anim.gif', 'mime_type' => 'image/gif']);
+        Storage::put($file->path(), $builder->encode());
+
+        (new GenerateThumbnail($file))->handle();
+
+        $this->assertTrue($file->refresh()->has_thumbnail);
+        Storage::assertExists($file->thumbnailPath());
+    }
+
+    public function test_images_too_large_to_decode_safely_are_skipped(): void
+    {
+        Storage::fake();
+        // a tiny png whose header claims 20000x20000 (~2GB once decoded by gd)
+        $png = substr_replace($this->pngContents(1, 1), pack('N2', 20000, 20000), 16, 8);
+
+        $file = File::factory()->create(['name' => 'bomb.png', 'mime_type' => 'image/png']);
+        Storage::put($file->path(), $png);
+
+        (new GenerateThumbnail($file))->handle();
+
+        $this->assertFalse($file->refresh()->has_thumbnail);
+        Storage::assertMissing($file->thumbnailPath());
     }
 
     public function test_non_images_and_broken_images_get_no_thumbnail(): void
