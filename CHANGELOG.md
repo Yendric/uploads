@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/Yendric/uploads/compare/v1.5.0...v1.5.1) (2026-08-11)
+
+
+### Bug Fixes
+
+* theme toggle as icon button in the sidebar header ([49a1869](https://github.com/Yendric/uploads/commit/49a18696c2238cb99b179323eae2f81570bec61b))
+* thumbnail generation for animated gifs and oversized images ([4b29e42](https://github.com/Yendric/uploads/commit/4b29e42dd3d86e12875b7a58fa077620b2973feb))
+
 ## [1.5.0](https://github.com/Yendric/uploads/compare/v1.4.0...v1.5.0) (2026-08-11)
 
 
