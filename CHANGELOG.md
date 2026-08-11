@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/Yendric/uploads/compare/v1.5.1...v1.6.0) (2026-08-11)
+
+
+### Features
+
+* loading animations for image and code previews ([815900e](https://github.com/Yendric/uploads/commit/815900ee2ea55c6f2a64938a79415b3bf3294cc0))
+
 ## [1.5.1](https://github.com/Yendric/uploads/compare/v1.5.0...v1.5.1) (2026-08-11)
 
 
