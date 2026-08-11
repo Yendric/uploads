@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/Yendric/uploads/compare/v1.3.0...v1.4.0) (2026-08-11)
+
+
+### Features
+
+* file table and pagination improvements ([c0bd102](https://github.com/Yendric/uploads/commit/c0bd102eee9240f444f2bda04f94892b31ebfc25))
+* mobile navigation header ([5bca0d8](https://github.com/Yendric/uploads/commit/5bca0d8d39d60c40ddb3c9dc41ed2818529b15ca))
+* multi-file upload ([6a6e9df](https://github.com/Yendric/uploads/commit/6a6e9dfd54f32d58261860e30e172ed5f1bfadca))
+
+
+### Bug Fixes
+
+* dialogs sliding in from the top left corner ([7bf4d01](https://github.com/Yendric/uploads/commit/7bf4d010cec7c56d96021854447f2ca2b74bec5f))
+
 ## [1.3.0](https://github.com/Yendric/uploads/compare/v1.2.0...v1.3.0) (2026-08-11)
 
 
