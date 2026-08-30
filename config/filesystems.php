@@ -59,6 +59,8 @@ return [
             'throw' => false,
             // make readStream() lazy so partial reads (mime sniffing) and zip streaming stay cheap
             'stream_reads' => true,
+            // garage has no object acls, so skip the acl lookup on copy/move
+            'retain_visibility' => false,
         ],
 
     ],
