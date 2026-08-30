@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/Yendric/uploads/compare/v1.6.0...v1.6.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **s3:** skip acl lookup on copy/move for garage ([1c19245](https://github.com/Yendric/uploads/commit/1c192455edd2ee47aa6baad61418bdbfc86a4947))
+
 ## [1.6.0](https://github.com/Yendric/uploads/compare/v1.5.1...v1.6.0) (2026-08-11)
 
 
