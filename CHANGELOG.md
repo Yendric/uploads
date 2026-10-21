@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.2](https://github.com/Yendric/uploads/compare/v1.6.1...v1.6.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* compare dry-run option strictly ([933db52](https://github.com/Yendric/uploads/commit/933db5240bed1bcc6162584fc04be1340c25aea8))
+* **deps:** update dependencies for security advisories ([765d8fd](https://github.com/Yendric/uploads/commit/765d8fd66661da40ff04644c0602199b9eca2458))
+* **ts:** exclude vendor from type checking ([ad397f5](https://github.com/Yendric/uploads/commit/ad397f51be430bc9727321b0be33d94f89b4f780))
+
 ## [1.6.1](https://github.com/Yendric/uploads/compare/v1.6.0...v1.6.1) (2026-08-30)
 
 
