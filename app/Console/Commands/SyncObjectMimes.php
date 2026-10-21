@@ -58,7 +58,7 @@ class SyncObjectMimes extends Command
 
             $this->line("{$file->name}: ".($stored !== false ? $stored : 'onbekend')." -> {$file->mime_type}");
 
-            if (! $this->option('dry-run')) {
+            if ($this->option('dry-run') !== true) {
                 // copy the object onto itself, only replacing its metadata
                 $client->copyObject([
                     'Bucket' => $bucket,
@@ -72,7 +72,7 @@ class SyncObjectMimes extends Command
             $updated++;
         }
 
-        $this->info($this->option('dry-run') ? "{$updated} object(en) zouden aangepast worden." : "{$updated} object(en) aangepast.");
+        $this->info($this->option('dry-run') === true ? "{$updated} object(en) zouden aangepast worden." : "{$updated} object(en) aangepast.");
 
         return self::SUCCESS;
     }

@@ -40,7 +40,7 @@ class SyncMimeTypes extends Command
 
             $this->line("{$file->name}: {$file->mime_type} -> {$detected}");
 
-            if (! $this->option('dry-run')) {
+            if ($this->option('dry-run') !== true) {
                 $file->mime_type = $detected;
                 $file->save();
             }
@@ -48,7 +48,7 @@ class SyncMimeTypes extends Command
             $updated++;
         }
 
-        $this->info($this->option('dry-run') ? "{$updated} bestand(en) zouden aangepast worden." : "{$updated} bestand(en) aangepast.");
+        $this->info($this->option('dry-run') === true ? "{$updated} bestand(en) zouden aangepast worden." : "{$updated} bestand(en) aangepast.");
 
         return self::SUCCESS;
     }
